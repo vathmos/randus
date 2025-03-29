@@ -1,5 +1,13 @@
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@heroui/react";
+import { Listbox, ListboxItem } from "@heroui/react";
+import { useMemo, useState } from "react";
+
+export const ListboxWrapper = ({ children }) => (
+  <div className="w-[260px] border-small px-1 py-2 rounded-small border-default-200 dark:border-default-100">
+    {children}
+  </div>
+);
 
 export default function Home() {
   function randomizeGroups(names: string[], numGroups: number): string[][] {
@@ -22,6 +30,12 @@ export default function Home() {
     return groups;
   }
 
+  const [selectedKeys, setSelectedKeys] = useState(new Set([]));
+
+  const selectedValue = useMemo(() => Array.from(selectedKeys).join(", "), [selectedKeys]);
+
+
+
   // Contoh penggunaan:
   const namesList = ["Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Grace", "Hank", "a", "b", "c", "d", "e", "f"];
   const numGroups = 3;
@@ -35,36 +49,34 @@ export default function Home() {
           <p className="satoshi text-3xl text-inherit">Randus</p>
         </NavbarBrand>
         <NavbarContent className="sm:flex gap-4 hide" justify="center">
-          {/* <NavbarItem>
-          <Link color="foreground" href="#">
-            Features
-          </Link>
-        </NavbarItem>
-        <NavbarItem isActive>
-          <Link aria-current="page" href="#">
-            Customers
-          </Link>
-        </NavbarItem>
-        <NavbarItem>
-          <Link color="foreground" href="#">
-            Integrations
-          </Link>
-        </NavbarItem> */}
         </NavbarContent>
         <NavbarContent justify="end">
-          {/* <NavbarItem className="lg:flex">
-          <Link href="#">Login</Link>
-        </NavbarItem>
-        <NavbarItem>
-          <Button as={Link} color="primary" href="#" variant="flat">
-            Sign Up
-          </Button>
-        </NavbarItem> */}
           <NavbarItem>
             <ThemeSwitcher />
           </NavbarItem>
         </NavbarContent>
       </Navbar>
+      <div className="flex justify-center">
+        <div className="flex flex-col gap-2 max-w-[1024px] px-6 w-screen">
+          <ListboxWrapper>
+            <Listbox
+              aria-label="Multiple selection example"
+              selectedKeys={selectedKeys}
+              selectionMode="multiple"
+              variant="flat"
+              onSelectionChange={setSelectedKeys}
+            >
+              <ListboxItem key="text">Text</ListboxItem>
+              <ListboxItem key="number">Number</ListboxItem>
+              <ListboxItem key="date">Date</ListboxItem>
+              <ListboxItem key="single_date">Single Date</ListboxItem>
+              <ListboxItem key="iteration">Iteration</ListboxItem>
+            </Listbox>
+          </ListboxWrapper>
+          <p className="text-small text-default-500">Selected value: {selectedValue}</p>
+        </div>
+      </div>
+
     </div>
 
   );
