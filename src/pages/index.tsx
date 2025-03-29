@@ -1,9 +1,9 @@
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@heroui/react";
 import { Listbox, ListboxItem } from "@heroui/react";
-import { useMemo, useState } from "react";
+import { ReactNode, useMemo, useState } from "react";
 
-export const ListboxWrapper = ({ children }) => (
+export const ListboxWrapper = ({ children } : { children: ReactNode }) => (
   <div className="w-[260px] border-small px-1 py-2 rounded-small border-default-200 dark:border-default-100">
     {children}
   </div>
@@ -30,7 +30,7 @@ export default function Home() {
     return groups;
   }
 
-  const [selectedKeys, setSelectedKeys] = useState(new Set([]));
+  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
 
   const selectedValue = useMemo(() => Array.from(selectedKeys).join(", "), [selectedKeys]);
 
@@ -64,7 +64,7 @@ export default function Home() {
               selectedKeys={selectedKeys}
               selectionMode="multiple"
               variant="flat"
-              onSelectionChange={setSelectedKeys}
+              onSelectionChange={(keys) => setSelectedKeys(keys as Set<string>)}
             >
               <ListboxItem key="text">Text</ListboxItem>
               <ListboxItem key="number">Number</ListboxItem>
