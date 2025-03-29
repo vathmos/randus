@@ -1,0 +1,13 @@
+@font-face {
+  font-family: "satoshi-medium";
+  src: url("/fonts/satoshi-medium.otf");
+}
+
+@font-face {
+  font-family: "satoshi";
+  src: url("/fonts/Satoshi-Variable.ttf");
+}
+
+.satoshi {
+  font-family: "satoshi";
+}
