@@ -8,7 +8,7 @@ export const ThemeSwitcher = () => {
 
   return (
     <div>
-      <Button isIconOnly onPress={() => theme === "light" ? setTheme("dark") : setTheme("light")}>
+      <Button variant="ghost" isIconOnly onPress={() => theme === "light" ? setTheme("blurple-dark") : setTheme("light")}>
         {theme === "light" ? <Moon /> : <Sun />}
       </Button>
     </div>
