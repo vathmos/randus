@@ -1,29 +1,37 @@
-import { ThemeSwitcher } from "@/components/ThemeSwitcher";
-import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@heroui/react";
-import { Listbox, ListboxItem } from "@heroui/react";
+import DefaultNavbar from "@/components/Navbar";
+import { Button, Checkbox, Form, Input } from "@heroui/react";
 import { ReactNode, useMemo, useState } from "react";
+import { Plus, Crown, Trash2 as Trash } from "lucide-react";
+import { useForm } from "react-hook-form";
+import {
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@heroui/react";
 
-export const ListboxWrapper = ({ children } : { children: ReactNode }) => (
-  <div className="w-[260px] border-small px-1 py-2 rounded-small border-default-200 dark:border-default-100">
-    {children}
-  </div>
-);
 
 export default function Home() {
-  function randomizeGroups(names: string[], numGroups: number): string[][] {
+
+  const form = useForm();
+
+
+  function randomizeGroups(items: string[], numGroups: number): string[][] {
     if (numGroups <= 0) throw new Error("Number of groups must be at least 1");
 
     // Acak urutan nama menggunakan Fisher-Yates Shuffle
-    for (let i = names.length - 1; i > 0; i--) {
+    for (let i = items.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [names[i], names[j]] = [names[j], names[i]];
+      [items[i], items[j]] = [items[j], items[i]];
     }
 
     // Inisialisasi array kosong untuk grup
     const groups: string[][] = Array.from({ length: numGroups }, () => []);
 
     // Distribusikan nama ke dalam grup secara merata
-    names.forEach((name, i) => {
+    items.forEach((name, i) => {
       groups[i % numGroups].push(name);
     });
 
@@ -32,48 +40,79 @@ export default function Home() {
 
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
 
+  const [items, setItems] = useState(["Bob", "Alex", "Sarah"]);
+
   const selectedValue = useMemo(() => Array.from(selectedKeys).join(", "), [selectedKeys]);
+
+  const handleCreateName = () => {
+    setItems((prev) => prev ? [...prev, form.getValues("item")] : form.getValues("item"));
+    form.setValue("item", "");
+    form.setFocus("item");
+    form.reset();
+  }
 
 
 
   // Contoh penggunaan:
-  const namesList = ["Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Grace", "Hank", "a", "b", "c", "d", "e", "f"];
+  const itemsList = ["Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Grace", "Hank", "a", "b", "c", "d", "e", "f"];
   const numGroups = 3;
 
-  console.log(randomizeGroups(namesList, numGroups));
+  console.log(randomizeGroups(itemsList, numGroups));
 
   return (
     <div className="">
-      <Navbar position="static">
-        <NavbarBrand>
-          <p className="satoshi text-3xl text-inherit">Randus</p>
-        </NavbarBrand>
-        <NavbarContent className="sm:flex gap-4 hide" justify="center">
-        </NavbarContent>
-        <NavbarContent justify="end">
-          <NavbarItem>
-            <ThemeSwitcher />
-          </NavbarItem>
-        </NavbarContent>
-      </Navbar>
+      <DefaultNavbar></DefaultNavbar>
       <div className="flex justify-center">
-        <div className="flex flex-col gap-2 max-w-[1024px] px-6 w-screen">
-          <ListboxWrapper>
-            <Listbox
-              aria-label="Multiple selection example"
-              selectedKeys={selectedKeys}
+        <div className="flex flex-col gap-2 max-w-[1024px] px-6 w-screen color">
+
+          <div key="bordered" className="flex w-full flex-wrap md:flex-nowrap md:mb-0 gap-4">
+            <Form className="flex-row flex items-end w-full" onSubmit={form.handleSubmit(handleCreateName)}>
+              <Input onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleCreateName();
+                }
+              }}
+                label="Name" type="text" variant="underlined" placeholder="Enter new item" {...form.register("item")} />
+              <Button type="submit" isIconOnly variant="solid" size="md" color="primary">
+                <Plus></Plus>
+              </Button>
+              <Button isIconOnly variant="solid" size="md" color="danger" disableAnimation>
+                <Trash></Trash>
+              </Button>
+            </Form>
+          </div>
+          <div className="flex flex-col max-w-[1024px]">
+            <Table
+              removeWrapper
+              aria-label="Rows actions table example with dynamic content"
+              selectionBehavior="toggle"
+              color="danger"
               selectionMode="multiple"
-              variant="flat"
-              onSelectionChange={(keys) => setSelectedKeys(keys as Set<string>)}
+            // onRowAction={(key) => alert(`Opening item ${key}...`)}
             >
-              <ListboxItem key="text">Text</ListboxItem>
-              <ListboxItem key="number">Number</ListboxItem>
-              <ListboxItem key="date">Date</ListboxItem>
-              <ListboxItem key="single_date">Single Date</ListboxItem>
-              <ListboxItem key="iteration">Iteration</ListboxItem>
-            </Listbox>
-          </ListboxWrapper>
-          <p className="text-small text-default-500">Selected value: {selectedValue}</p>
+              <TableHeader>
+                <TableColumn>
+                  Name
+                </TableColumn>
+                <TableColumn>
+                  Status
+                </TableColumn>
+              </TableHeader>
+              <TableBody>
+                {items.map((item, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{item}</TableCell>
+                    <TableCell>
+                      <Checkbox size="md" icon={<Crown />} color="warning" defaultChecked={false}>
+                        Leader
+                      </Checkbox>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </div>
       </div>
 

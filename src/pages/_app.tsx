@@ -7,7 +7,7 @@ import { ThemeProvider as NextThemesProvider } from "next-themes"
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <HeroUIProvider>
-      <NextThemesProvider attribute="class" defaultTheme="blurple-dark" themes={["dark","light", "blurple-dark"]}>
+      <NextThemesProvider attribute="class" defaultTheme="blurple-dark" themes={["dark","light", "blurple-dark","blurple-light"]}>
         <Component {...pageProps} />
       </NextThemesProvider>
     </HeroUIProvider>
