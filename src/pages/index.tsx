@@ -1,6 +1,6 @@
 import DefaultNavbar from "@/components/Navbar";
 import { Button, Checkbox, Form, Input } from "@heroui/react";
-import { ReactNode, useMemo, useState } from "react";
+import { useState } from "react";
 import { Plus, Crown, Trash2 as Trash } from "lucide-react";
 import { useForm } from "react-hook-form";
 import {
@@ -38,11 +38,8 @@ export default function Home() {
     return groups;
   }
 
-  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
 
   const [items, setItems] = useState(["Bob", "Alex", "Sarah"]);
-
-  const selectedValue = useMemo(() => Array.from(selectedKeys).join(", "), [selectedKeys]);
 
   const handleCreateName = () => {
     setItems((prev) => prev ? [...prev, form.getValues("item")] : form.getValues("item"));
@@ -104,7 +101,7 @@ export default function Home() {
                   <TableRow key={index}>
                     <TableCell>{item}</TableCell>
                     <TableCell>
-                      <Checkbox size="md" icon={<Crown />} color="warning" defaultChecked={false}>
+                      <Checkbox key={index} size="md" icon={<Crown />} color="warning" defaultChecked={false}>
                         Leader
                       </Checkbox>
                     </TableCell>
