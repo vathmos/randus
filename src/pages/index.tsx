@@ -1,5 +1,5 @@
 import DefaultNavbar from "@/components/Navbar";
-import { Button, Checkbox, Form, Input } from "@heroui/react";
+import { Button, Checkbox, Form, Input, Select, SelectItem, SharedSelection } from "@heroui/react";
 import { useState } from "react";
 import { Plus, Crown, Trash2 as Trash } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -43,12 +43,8 @@ export default function Home() {
   //   return groups;
   // }
 
-  const [selectedKeys, setSelectedKeys] = useState<Set<string> | "all">(new Set());
-
-
-  // const selectedValue = useMemo(() => Array.from(selectedKeys).join(", "), [selectedKeys]);
-
-
+  const [selectedItemKeys, setSelectedItemKeys] = useState<Set<string> | "all">(new Set());
+  const [selectedGroupingKey, setSelectedGroupingKey] = useState<Set<string>>(new Set());
 
   const [items, setItems] = useState<Item[]>([
     {
@@ -65,25 +61,33 @@ export default function Home() {
     },
   ]);
 
+  const groupingMethods =
+    [
+      "Group by number input",
+      "Group by total leaders"
+    ]
+
 
   const handleDeleteItem = () => {
-    if (selectedKeys === "all") {
+    if (selectedItemKeys === "all") {
       setItems([]);
     } else {
-      setItems((prevItems) => prevItems.filter((item) => !selectedKeys.has(item.name)));
+      setItems((prevItems) => prevItems.filter((item) => !selectedItemKeys.has(item.name)));
     }
-    setSelectedKeys(new Set());
+    setSelectedItemKeys(new Set());
 
   }
   const handleCreateItem = () => {
-    setItems((prev) => prev ? [...prev, form.getValues("item")] : form.getValues("item"));
+    const newItem = { name: form.getValues("item"), isLeader: false };
+    setItems((prev) => prev ? [...prev, newItem] : [newItem]);
     form.setValue("item", "");
     form.setFocus("item");
     form.reset();
   }
-  console.log(selectedKeys);
 
-
+  const handleGroupingChange = (key: SharedSelection) => {
+    setSelectedGroupingKey(key as Set<string>)
+  }
 
   // Contoh penggunaan:
   // const itemsList = ["Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Grace", "Hank", "a", "b", "c", "d", "e", "f"];
@@ -91,13 +95,22 @@ export default function Home() {
 
   // console.log(randomizeGroups(itemsList, numGroups));
 
+  console.log(items);
+
   return (
     <div className="">
       <DefaultNavbar></DefaultNavbar>
       <div className="flex justify-center">
         <div className="flex flex-col gap-2 max-w-[1024px] px-6 w-screen color">
-
+          <div className="flex w-full flex-wrap md:flex-nowrap mb-6 md:mb-0 gap-4">
+            <Select isRequired className="max-w-xs" label="Select grouping method" variant="bordered" onSelectionChange={handleGroupingChange}>
+              {groupingMethods.map((method, index) => (
+                <SelectItem key={index}>{method}</SelectItem>
+              ))}
+            </Select>
+          </div>
           <div key="bordered" className="flex w-full flex-wrap md:flex-nowrap md:mb-0 gap-4">
+
             <Form className="flex-row flex items-end w-full" onSubmit={form.handleSubmit(handleCreateItem)}>
               <Input onKeyDown={(e) => {
                 if (e.key === "Enter") {
@@ -106,7 +119,7 @@ export default function Home() {
                 }
               }}
                 label="Name" type="text" variant="underlined" placeholder="Enter new item" {...form.register("item")} />
-              <Input label="Number of Groups" type="text" variant="underlined" placeholder="0" {...form.register("groupNum")} className="w-1/2" />
+              <Input label="Number of Groups" type="text" variant="underlined" placeholder="0" {...form.register("groupNum")} className={`w-1/2 ${!selectedGroupingKey.has("0") ? "hidden" : ""}`} />
               <Button type="submit" isIconOnly variant="solid" size="md" color="primary">
                 <Plus></Plus>
               </Button>
@@ -122,8 +135,8 @@ export default function Home() {
               selectionBehavior="toggle"
               color="danger"
               selectionMode="multiple"
-              selectedKeys={selectedKeys}
-              onSelectionChange={(keys) => setSelectedKeys(keys as Set<string>)}
+              selectedKeys={selectedItemKeys}
+              onSelectionChange={(keys) => setSelectedItemKeys(keys as Set<string>)}
             // onRowAction={(key) => alert(`Opening item ${key}...`)}
             >
               <TableHeader>
@@ -139,7 +152,15 @@ export default function Home() {
                   <TableRow key={item.name}>
                     <TableCell>{item.name}</TableCell>
                     <TableCell>
-                      <Checkbox key={item.name} size="md" icon={<Crown />} color="warning" defaultChecked={false}>
+                      <Checkbox isDisabled={!selectedGroupingKey.has("1")} key={item.name} size="md" icon={<Crown />} color="warning" defaultChecked={false}
+                        onChange={() => {
+                          setItems((prev) =>
+                            prev.map((prevItem) =>
+                              prevItem.name === item.name ? { ...prevItem, isLeader: !prevItem.isLeader } : prevItem
+                            )
+                          );
+                        }}
+                      >
                         Leader
                       </Checkbox>
                     </TableCell>
