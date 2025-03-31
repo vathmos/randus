@@ -119,7 +119,7 @@ export default function Home() {
                 }
               }}
                 label="Name" type="text" variant="underlined" placeholder="Enter new item" {...form.register("item")} />
-              <Input label="Number of Groups" type="text" variant="underlined" placeholder="0" {...form.register("groupNum")} className={`w-1/2 ${!selectedGroupingKey.has("0") ? "hidden" : ""}`} />
+              <Input label="Number of Groups" type="text" variant="underlined" placeholder="0" {...form.register("groupNum")} className={`w-1/6 ${!selectedGroupingKey.has("0") ? "hidden" : ""}`} />
               <Button type="submit" isIconOnly variant="solid" size="md" color="primary">
                 <Plus></Plus>
               </Button>
