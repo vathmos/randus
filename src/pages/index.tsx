@@ -19,13 +19,23 @@ type Item = {
   isLeader: boolean
 }
 
+type Member = {
+  name: string;
+  isLeader: boolean;
+};
+
+type Group = {
+  leader: Member | null;
+  members: Member[];
+};
+
 
 export default function Home() {
 
   const form = useForm();
 
   const [isRandomizeLoading, setIsRandomizeLoading] = useState(false);
-  const [groups, setGroups] = useState<string[][]>([]);
+  const [groups, setGroups] = useState<Group[]>([]);
   const [selectedItemKeys, setSelectedItemKeys] = useState<Set<string> | "all">(new Set());
   const [selectedGroupingKey, setSelectedGroupingKey] = useState<Set<string>>(new Set(["0"]));
 
@@ -61,7 +71,7 @@ export default function Home() {
     const newItem = { key: (items.length + 1).toString(), name: form.getValues("item"), isLeader: false };
     setItems((prev) => prev ? [...prev, newItem] : [newItem]);
     form.setFocus("item");
-    form.setValue("item","");
+    form.setValue("item", "");
   }
 
   const handleGroupingChange = (key: SharedSelection) => {
@@ -72,11 +82,14 @@ export default function Home() {
     setIsRandomizeLoading(true);
     console.log(itemNames, form.watch("groupNum"));
     if (selectedGroupingKey.has("0")) {
-      setGroups(randomizeGroups(itemNames, form.watch("groupNum")));
+      setGroups(randomizeGroups(items, form.watch("groupNum"), "basic"));
     } else if (selectedGroupingKey.has("1")) {
-      setGroups(randomizeGroups(itemNames, totalLeaders));
+      setGroups([]);
+      setGroups(randomizeGroups(items, totalLeaders, "detailed"));
     }
     setIsRandomizeLoading(false);
+    console.log(groups);
+    console.log(items);
 
   }
 
@@ -187,9 +200,17 @@ export default function Home() {
                   </CardHeader>
                   <Divider />
                   <CardBody>
-                    {group.map((item, index) => (
-                      <p key={index}>{item}</p>
+                    {group.leader
+                      ?
+                      <div className="text-yellow-500 flex justify-between items-center">
+                        <p className=" font-semibold ">{group.leader.name}</p>
+                        <Crown size={20} />
+                      </div>
+                      : ""}
+                    {group.members.map((item, index) => (
+                      <p key={index}>{item.name}</p>
                     ))}
+
                   </CardBody>
                 </Card>
               ))}
