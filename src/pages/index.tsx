@@ -2,7 +2,7 @@ import DefaultNavbar from "@/components/Navbar";
 import { Button, Card, CardBody, CardHeader, Checkbox, Divider, Form, Input, Select, SelectItem, SharedSelection } from "@heroui/react";
 import { useState } from "react";
 import { Plus, Crown, Trash, Dices } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import randomizeGroups from "@/utils/randomizeGroups";
 import {
   Table,
@@ -27,13 +27,15 @@ export default function Home() {
   const [isRandomizeLoading, setIsRandomizeLoading] = useState(false);
   const [groups, setGroups] = useState<string[][]>([]);
   const [selectedItemKeys, setSelectedItemKeys] = useState<Set<string> | "all">(new Set());
-  const [selectedGroupingKey, setSelectedGroupingKey] = useState<Set<string>>(new Set());
+  const [selectedGroupingKey, setSelectedGroupingKey] = useState<Set<string>>(new Set(["0"]));
 
-  const [items, setItems] = useState<Item[]>([
+  const dummyItems = [
     ...["John", "Emma", "Michael", "Olivia", "James", "Sophia", "William", "Isabella", "Benjamin", "Mia",
       "Daniel", "Charlotte", "Henry", "Amelia", "Matthew", "Harper", "Joseph", "Evelyn", "Samuel", "Abigail",
-      "David", "Ella", "Christopher", "Scarlett", "Andrew", "Grace", "Joshua", "Lily", "Ethan", "Hannah",].map((name, index) => ({ key: (index + 1).toString(), name, isLeader: false }))
-  ]);
+      "David", "Ella", "Christopher", "Scarlett", "Andrew", "Grace", "Joshua", "Lily", "Ethan", "Hannah"].map((name, index) => ({ key: (index + 1).toString(), name, isLeader: false }))
+  ]
+
+  const [items, setItems] = useState<Item[]>(dummyItems);
 
   const itemNames = items.map((item) => item.name);
 
@@ -58,9 +60,8 @@ export default function Home() {
   const handleCreateItem = () => {
     const newItem = { key: (items.length + 1).toString(), name: form.getValues("item"), isLeader: false };
     setItems((prev) => prev ? [...prev, newItem] : [newItem]);
-    form.setValue("item", "");
     form.setFocus("item");
-    form.reset();
+    form.setValue("item","");
   }
 
   const handleGroupingChange = (key: SharedSelection) => {
@@ -69,20 +70,20 @@ export default function Home() {
 
   const handleRandomizeClick = () => {
     setIsRandomizeLoading(true);
-    if (selectedGroupingKey.has("Group by number input")) {
-      setGroups(randomizeGroups(itemNames, form.getValues("groupNum")));
-    } else if (selectedGroupingKey.has("Group by total leaders")) {
+    console.log(itemNames, form.watch("groupNum"));
+    if (selectedGroupingKey.has("0")) {
+      setGroups(randomizeGroups(itemNames, form.watch("groupNum")));
+    } else if (selectedGroupingKey.has("1")) {
       setGroups(randomizeGroups(itemNames, totalLeaders));
     }
     setIsRandomizeLoading(false);
+
   }
 
   const totalLeaders = items.filter((item) => item.isLeader === true).length;
 
 
-  console.log(totalLeaders);
 
-  console.log(groups);
 
   return (
     <div className="pb-20">
@@ -90,24 +91,36 @@ export default function Home() {
       <div className="flex justify-center">
         <div className="flex flex-col gap-2 max-w-[1024px] px-6 w-screen color">
           <div className="flex w-full justify-between flex-wrap md:flex-nowrap gap-4">
-            <Select isRequired className="max-w-xs" label="Select grouping method" variant="bordered" onSelectionChange={handleGroupingChange}>
-              {groupingMethods.map((method) => (
-                <SelectItem key={method}>{method}</SelectItem>
+            <Select defaultSelectedKeys="0" isRequired className="max-w-xs" label="Select grouping method" variant="bordered" onSelectionChange={handleGroupingChange}>
+              {groupingMethods.map((method, key) => (
+                <SelectItem key={key}>{method}</SelectItem>
               ))}
             </Select>
-            <Input label="Number of Groups" type="text" variant="bordered" placeholder="0" {...form.register("groupNum")} className={`w-36 ${!selectedGroupingKey.has("Group by number input") ? "hidden" : ""}`} />
+            <Input label="Number of Groups" type="text" variant="bordered" placeholder="0" {...form.register("groupNum")} className={`w-36 ${!selectedGroupingKey.has("0") ? "hidden" : ""}`} />
 
           </div>
           <div key="bordered" className="flex w-full flex-wrap md:flex-nowrap md:mb-0 gap-4">
 
             <Form className="flex flex-row items-end w-full" onSubmit={form.handleSubmit(handleCreateItem)}>
-              <Input onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  handleCreateItem();
-                }
-              }}
-                label="Name" type="text" variant="underlined" placeholder="Enter new item" {...form.register("item")} />
+              <Controller
+                name="item"
+                control={form.control}
+                render={({ field }) => (
+                  <Input
+                    {...field} // Spreads field properties for full RHF control
+                    label="Name"
+                    type="text"
+                    variant="underlined"
+                    placeholder="Enter new item"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleCreateItem();
+                      }
+                    }}
+                  />
+                )}
+              />
               <section className="flex items-end gap-2">
                 <Button type="submit" isIconOnly variant="solid" size="md" color="primary">
                   <Plus></Plus>
@@ -140,12 +153,12 @@ export default function Home() {
                 </TableColumn>
               </TableHeader>
               <TableBody emptyContent="No items... yet!" items={items}>
-                {items.map((item) => (
+                {items.map((item, index) => (
                   <TableRow key={item.key}>
-                    <TableCell>{item.key}</TableCell>
+                    <TableCell>{index + 1}</TableCell>
                     <TableCell>{item.name}</TableCell>
                     <TableCell>
-                      <Checkbox isDisabled={!selectedGroupingKey.has("Group by total leaders")} key={item.name} size="md" icon={<Crown />} color="warning" defaultChecked={false}
+                      <Checkbox isDisabled={!selectedGroupingKey.has("1")} key={item.name} size="md" icon={<Crown />} color="warning" defaultChecked={false}
                         onChange={() => {
                           setItems((prev) =>
                             prev.map((prevItem) =>
@@ -162,7 +175,7 @@ export default function Home() {
               </TableBody>
             </Table>
             <Button isLoading={isRandomizeLoading} onPress={handleRandomizeClick} size="lg" className=" text-white rounded my-8 self-center w-fit bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-indigo-500 hover:to-blue-600 font-bold ">
-              <Dices className={isRandomizeLoading ? "hidden" : ""}/>
+              <Dices className={isRandomizeLoading ? "hidden" : ""} />
               <span>Randomize!</span>
             </Button>
 
