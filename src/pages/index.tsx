@@ -176,10 +176,9 @@ export default function Home() {
               </section>
             </Form>
           </div>
-          <div className="flex flex-col max-w-[1024px]">
+          <div className="flex flex-col max-w-[1024px] overflow-auto">
             <Table
               removeWrapper
-              aria-label="Rows actions table example with dynamic content"
               selectionBehavior="toggle"
               color="danger"
               selectionMode="multiple"
