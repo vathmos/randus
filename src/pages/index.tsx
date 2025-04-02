@@ -23,7 +23,7 @@ export default function Home() {
   function generateShortID(length = 6): string {
     return Math.random().toString(36).substring(2, 2 + length);
   }
-  
+
 
   const { theme } = useTheme();
 
@@ -68,7 +68,7 @@ export default function Home() {
   //   { key: "29", name: "Ethan", isLeader: false, gender: "male" },
   //   { key: "30", name: "Hannah", isLeader: false, gender: "female" }
   // ];
-  
+
 
 
   const [items, setItems] = useState<Item[]>(dummyItems);
@@ -91,7 +91,7 @@ export default function Home() {
 
   }
   const handleCreateItem = () => {
-    const newItem: Item = { key: generateShortID(), name: form.getValues("item"), isLeader: false, gender: "male" };
+    const newItem: Item = { key: generateShortID(), name: form.getValues("item"), isLeader: false, gender: "" };
     setItems((prev) => prev ? [...prev, newItem] : [newItem]);
     form.setFocus("item");
     form.setValue("item", "");
@@ -177,75 +177,77 @@ export default function Home() {
             </Form>
           </div>
           <div className="flex flex-col max-w-[1024px] overflow-auto">
-            <Table
-              removeWrapper
-              selectionBehavior="toggle"
-              color="danger"
-              selectionMode="multiple"
-              selectedKeys={selectedItemKeys}
-              onSelectionChange={(keys) => setSelectedItemKeys(keys as Set<string>)}
-            >
-              <TableHeader>
-                <TableColumn>
-                  #
-                </TableColumn>
-                <TableColumn>
-                  Name
-                </TableColumn>
-                <TableColumn>
-                  Status
-                </TableColumn>
-                <TableColumn>
-                  Gender
-                </TableColumn>
-              </TableHeader>
-              <TableBody emptyContent="No items... yet!" items={items}>
-                {items.map((item, index) => (
-                  <TableRow key={item.key}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>{item.name}</TableCell>
-                    <TableCell>
-                      <Checkbox isDisabled={!selectedGroupingKey.has("1")} key={item.name} size="md" icon={<Crown />} color="warning" defaultChecked={false}
-                        onChange={() => {
-                          setItems((prev) =>
-                            prev.map((prevItem) =>
-                              prevItem.key === item.key ? { ...prevItem, isLeader: !prevItem.isLeader } : prevItem
-                            )
-                          );
-                        }}
-                      >
-                        Leader
-                      </Checkbox>
-                    </TableCell>
-                    <TableCell>
-                      <RadioGroup  isDisabled={!isGenderFair}>
-                        <div className="flex sm:flex-row flex-col gap-3">
-                          <Radio value="male"
-                            onChange={() => {
-                              setItems((prev) =>
-                                prev.map((prevItem) =>
-                                  prevItem.key === item.key ? { ...prevItem, gender: "male" } : prevItem
-                                )
-                              );
-                              console.log(items);
-                            }}>Male</Radio>
-                          <Radio value="female"
-                            onChange={() => {
-                              setItems((prev) =>
-                                prev.map((prevItem) =>
-                                  prevItem.key === item.key ? { ...prevItem, gender: "female" } : prevItem
-                                )
-                              );
-                              console.log(items);
-                            }}
-                          >Female</Radio>
-                        </div>
-                      </RadioGroup>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <div className="">
+              <Table
+                removeWrapper
+                selectionBehavior="toggle"
+                color="danger"
+                selectionMode="multiple"
+                selectedKeys={selectedItemKeys}
+                onSelectionChange={(keys) => setSelectedItemKeys(keys as Set<string>)}
+              >
+                <TableHeader>
+                  <TableColumn>
+                    #
+                  </TableColumn>
+                  <TableColumn>
+                    Name
+                  </TableColumn>
+                  <TableColumn>
+                    Status
+                  </TableColumn>
+                  <TableColumn>
+                    Gender
+                  </TableColumn>
+                </TableHeader>
+                <TableBody emptyContent="No items... yet!" items={items}>
+                  {items.map((item, index) => (
+                    <TableRow key={item.key}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>{item.name}</TableCell>
+                      <TableCell>
+                        <Checkbox isDisabled={!selectedGroupingKey.has("1")} key={item.name} size="md" icon={<Crown />} color="warning" defaultChecked={false}
+                          onChange={() => {
+                            setItems((prev) =>
+                              prev.map((prevItem) =>
+                                prevItem.key === item.key ? { ...prevItem, isLeader: !prevItem.isLeader } : prevItem
+                              )
+                            );
+                          }}
+                        >
+                          Leader
+                        </Checkbox>
+                      </TableCell>
+                      <TableCell>
+                        <RadioGroup isDisabled={!isGenderFair}>
+                          <div className="flex sm:flex-row flex-col gap-3">
+                            <Radio value="male"
+                              onChange={() => {
+                                setItems((prev) =>
+                                  prev.map((prevItem) =>
+                                    prevItem.key === item.key ? { ...prevItem, gender: "male" } : prevItem
+                                  )
+                                );
+                                console.log(items);
+                              }}>Male</Radio>
+                            <Radio value="female"
+                              onChange={() => {
+                                setItems((prev) =>
+                                  prev.map((prevItem) =>
+                                    prevItem.key === item.key ? { ...prevItem, gender: "female" } : prevItem
+                                  )
+                                );
+                                console.log(items);
+                              }}
+                            >Female</Radio>
+                          </div>
+                        </RadioGroup>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
             <Button isLoading={isRandomizeLoading} onPress={handleRandomizeClick} size="lg" className=" text-white rounded my-8 self-center w-fit bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-indigo-500 hover:to-blue-600 font-bold ">
               <Dices className={isRandomizeLoading ? "hidden" : ""} />
               <span>Randomize!</span>
@@ -269,7 +271,10 @@ export default function Home() {
                     {group.members.map((item, index) => (
                       <div className="flex justify-between items-center" key={index}>
                         <p>{item.name}</p>
-                        {item.gender === "male" ? <Mars size={20} className="text-blue-500" /> : <Venus size={20} className="text-pink-500" />}
+                        {isGenderFair ?
+                          item.gender === "male" ? <Mars size={20} className="text-blue-500" /> : item.gender === "female" ? <Venus size={20} className="text-pink-500" /> : ""
+                          : ""
+                        }
                       </div>
                     ))}
 
