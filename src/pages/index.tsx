@@ -156,7 +156,7 @@ export default function Home() {
                     label="Name"
                     type="text"
                     variant="underlined"
-                    placeholder="Enter new item"
+                    placeholder="Enter new member"
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         e.preventDefault();
