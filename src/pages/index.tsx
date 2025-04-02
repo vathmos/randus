@@ -15,6 +15,7 @@ import {
 } from "@heroui/react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
+import Head from "next/head";
 
 
 
@@ -129,6 +130,11 @@ export default function Home() {
 
   return (
     <div className="">
+      <Head>
+        <title>
+          Randus
+        </title>
+      </Head>
       <DefaultNavbar></DefaultNavbar>
       <div className="flex justify-center">
         <div className="flex flex-col gap-2 max-w-[1024px] px-6 w-screen color">
