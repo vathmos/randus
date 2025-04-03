@@ -205,8 +205,8 @@ export default function Home() {
               </section>
             </Form>
           </div>
-          <div className="flex flex-col max-w-[1024px] overflow-auto">
-            <div className="">
+          <div className="flex flex-col max-w-[1024px]">
+            <div className="overflow-auto">
               <Table
                 removeWrapper
                 selectionBehavior="toggle"
