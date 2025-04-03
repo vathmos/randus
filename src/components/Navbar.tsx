@@ -2,7 +2,7 @@ import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@heroui/react";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import Image from "next/image";
 
-export default function DefaultNavbar(props: {currentTheme: string}) {
+export default function DefaultNavbar(props: {currentTheme: string | undefined}) {
   return (
     <>
       <Navbar position="static">
