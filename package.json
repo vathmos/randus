@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@heroui/react": "^2.7.5",
+    "@hookform/resolvers": "^5.0.1",
     "framer-motion": "^12.6.2",
     "lucide-react": "^0.485.0",
     "next": "15.2.4",
