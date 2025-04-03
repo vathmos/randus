@@ -1,9 +1,10 @@
 import DefaultNavbar from "@/components/Navbar";
-import { Button, Card, CardBody, CardHeader, Checkbox, Divider, Form, Input, Radio, RadioGroup, Select, SelectItem, SharedSelection } from "@heroui/react";
+import { addToast, Button, Card, CardBody, CardHeader, Checkbox, Divider, Form, Input, Radio, RadioGroup, Select, SelectItem, SharedSelection } from "@heroui/react";
 import { useState } from "react";
 import { Plus, Crown, Trash, Dices, Mars, Venus } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import randomizeGroups from "@/utils/randomizeGroups";
+import generateShortID from "@/utils/generateShortId";
 import { Group, Item } from "@/types";
 import {
   Table,
@@ -16,59 +17,60 @@ import {
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import Head from "next/head";
+import { motion } from "framer-motion"
 
 
 
 export default function Home() {
 
-  function generateShortID(length = 6): string {
-    return Math.random().toString(36).substring(2, 2 + length);
-  }
+
+
 
 
   const { theme } = useTheme();
 
   const form = useForm();
 
+  const [shuffleKey, setShuffleKey] = useState(0);
   const [isGenderFair, setIsGenderFair] = useState(false);
   const [isRandomizeLoading, setIsRandomizeLoading] = useState(false);
   const [groups, setGroups] = useState<Group[]>([]);
   const [selectedItemKeys, setSelectedItemKeys] = useState<Set<string> | "all">(new Set());
   const [selectedGroupingKey, setSelectedGroupingKey] = useState<Set<string>>(new Set(["0"]));
 
-  const dummyItems: Item[] = [];
-  // const dummyItems: Item[] = [
-  //   { key: "1", name: "John", isLeader: false, gender: "male" },
-  //   { key: "2", name: "Emma", isLeader: false, gender: "female" },
-  //   { key: "3", name: "Michael", isLeader: false, gender: "male" },
-  //   { key: "4", name: "Olivia", isLeader: false, gender: "female" },
-  //   { key: "5", name: "James", isLeader: false, gender: "male" },
-  //   { key: "6", name: "Sophia", isLeader: false, gender: "female" },
-  //   { key: "7", name: "William", isLeader: false, gender: "male" },
-  //   { key: "8", name: "Isabella", isLeader: false, gender: "female" },
-  //   { key: "9", name: "Benjamin", isLeader: false, gender: "male" },
-  //   { key: "10", name: "Mia", isLeader: false, gender: "female" },
-  //   { key: "11", name: "Daniel", isLeader: false, gender: "male" },
-  //   { key: "12", name: "Charlotte", isLeader: false, gender: "female" },
-  //   { key: "13", name: "Henry", isLeader: false, gender: "male" },
-  //   { key: "14", name: "Amelia", isLeader: false, gender: "female" },
-  //   { key: "15", name: "Matthew", isLeader: false, gender: "male" },
-  //   { key: "16", name: "Harper", isLeader: false, gender: "female" },
-  //   { key: "17", name: "Joseph", isLeader: false, gender: "male" },
-  //   { key: "18", name: "Evelyn", isLeader: false, gender: "female" },
-  //   { key: "19", name: "Samuel", isLeader: false, gender: "male" },
-  //   { key: "20", name: "Abigail", isLeader: false, gender: "female" },
-  //   { key: "21", name: "David", isLeader: false, gender: "male" },
-  //   { key: "22", name: "Ella", isLeader: false, gender: "female" },
-  //   { key: "23", name: "Christopher", isLeader: false, gender: "male" },
-  //   { key: "24", name: "Scarlett", isLeader: false, gender: "female" },
-  //   { key: "25", name: "Andrew", isLeader: false, gender: "male" },
-  //   { key: "26", name: "Grace", isLeader: false, gender: "female" },
-  //   { key: "27", name: "Joshua", isLeader: false, gender: "male" },
-  //   { key: "28", name: "Lily", isLeader: false, gender: "female" },
-  //   { key: "29", name: "Ethan", isLeader: false, gender: "male" },
-  //   { key: "30", name: "Hannah", isLeader: false, gender: "female" }
-  // ];
+  // const dummyItems: Item[] = [];
+  const dummyItems: Item[] = [
+    { key: "1", name: "John", isLeader: false, gender: "male" },
+    { key: "2", name: "Emma", isLeader: false, gender: "female" },
+    { key: "3", name: "Michael", isLeader: false, gender: "male" },
+    { key: "4", name: "Olivia", isLeader: false, gender: "female" },
+    { key: "5", name: "James", isLeader: false, gender: "male" },
+    { key: "6", name: "Sophia", isLeader: false, gender: "female" },
+    { key: "7", name: "William", isLeader: false, gender: "male" },
+    { key: "8", name: "Isabella", isLeader: false, gender: "female" },
+    { key: "9", name: "Benjamin", isLeader: false, gender: "male" },
+    { key: "10", name: "Mia", isLeader: false, gender: "female" },
+    //   { key: "11", name: "Daniel", isLeader: false, gender: "male" },
+    //   { key: "12", name: "Charlotte", isLeader: false, gender: "female" },
+    //   { key: "13", name: "Henry", isLeader: false, gender: "male" },
+    //   { key: "14", name: "Amelia", isLeader: false, gender: "female" },
+    //   { key: "15", name: "Matthew", isLeader: false, gender: "male" },
+    //   { key: "16", name: "Harper", isLeader: false, gender: "female" },
+    //   { key: "17", name: "Joseph", isLeader: false, gender: "male" },
+    //   { key: "18", name: "Evelyn", isLeader: false, gender: "female" },
+    //   { key: "19", name: "Samuel", isLeader: false, gender: "male" },
+    //   { key: "20", name: "Abigail", isLeader: false, gender: "female" },
+    //   { key: "21", name: "David", isLeader: false, gender: "male" },
+    //   { key: "22", name: "Ella", isLeader: false, gender: "female" },
+    //   { key: "23", name: "Christopher", isLeader: false, gender: "male" },
+    //   { key: "24", name: "Scarlett", isLeader: false, gender: "female" },
+    //   { key: "25", name: "Andrew", isLeader: false, gender: "male" },
+    //   { key: "26", name: "Grace", isLeader: false, gender: "female" },
+    //   { key: "27", name: "Joshua", isLeader: false, gender: "male" },
+    //   { key: "28", name: "Lily", isLeader: false, gender: "female" },
+    //   { key: "29", name: "Ethan", isLeader: false, gender: "male" },
+    //   { key: "30", name: "Hannah", isLeader: false, gender: "female" }
+  ];
 
 
 
@@ -83,20 +85,41 @@ export default function Home() {
 
 
   const handleDeleteItem = () => {
-    if (selectedItemKeys === "all") {
-      setItems([]);
-    } else {
+    if (selectedItemKeys !== "all" && selectedItemKeys.size !== 0) {
+
       setItems((prevItems) => prevItems.filter((item) => !selectedItemKeys.has(item.key)));
+      addToast({
+        title: "Member(s) deleted successfully",
+        shouldShowTimeoutProgress: true,
+        timeout: 3000,
+        color: "success"
+      })
+    } else {
+      setItems([]);
+      addToast({
+        title: "Member(s) deleted successfully",
+        shouldShowTimeoutProgress: true,
+        timeout: 3000,
+        color: "success"
+      })
     }
     setSelectedItemKeys(new Set());
 
+
   }
   const handleCreateItem = () => {
+
     const newItem: Item = { key: generateShortID(), name: form.getValues("item"), isLeader: false, gender: "" };
     setItems((prev) => prev ? [...prev, newItem] : [newItem]);
     form.setFocus("item");
     form.setValue("item", "");
     console.log(items);
+    addToast({
+      title: "Member added successfully",
+      shouldShowTimeoutProgress: true,
+      timeout: 3000,
+      color: "success"
+    })
   }
 
   const handleGroupingChange = (key: SharedSelection) => {
@@ -104,6 +127,7 @@ export default function Home() {
   }
 
   const handleRandomizeClick = () => {
+    setShuffleKey(prevKey => prevKey + 1);
     setIsRandomizeLoading(true);
     if (selectedGroupingKey.has("0")) {
       setGroups(randomizeGroups(items, form.watch("groupNum"), "group by number input", isGenderFair));
@@ -112,7 +136,6 @@ export default function Home() {
       setGroups(randomizeGroups(items, totalLeaders, "group by leaders", isGenderFair));
     }
     setIsRandomizeLoading(false);
-
   }
 
   const handleGenderFairChange = () => {
@@ -176,7 +199,7 @@ export default function Home() {
                 <Button type="submit" isIconOnly variant="solid" size="md" color="primary">
                   <Plus></Plus>
                 </Button>
-                <Button onPress={handleDeleteItem} isIconOnly variant="solid" size="md" color="danger">
+                <Button isDisabled={selectedItemKeys !== "all" && selectedItemKeys.size === 0} onPress={handleDeleteItem} isIconOnly variant="solid" size="md" color="danger">
                   <Trash></Trash>
                 </Button>
               </section>
@@ -259,33 +282,44 @@ export default function Home() {
               <span>Randomize!</span>
             </Button>
 
-            <div className={`grid gap-4 bg-gradient-to-tr  sm:grid-cols-2 md:grid-cols-4 grid-cols-1 from-blue-500/70 to-indigo-600/70 p-6 rounded-md ${groups[0] ? "" : "hidden"}`}>
+            <div key={shuffleKey} className={`grid gap-4 bg-gradient-to-tr sm:grid-cols-2 md:grid-cols-4 grid-cols-1 from-blue-500/70 to-indigo-600/70 p-6 rounded-md ${groups[0] ? "" : "hidden"}`}>
               {groups.map((group, index) => (
-                <Card isBlurred key={index + 1}>
-                  <CardHeader>
-                    Group {index + 1}
-                  </CardHeader>
-                  <Divider />
-                  <CardBody>
-                    {group.leader
-                      ?
-                      <div className="text-yellow-500 flex justify-between items-center">
-                        <p className=" font-semibold ">{group.leader.name}</p>
-                        <Crown size={20} />
-                      </div>
-                      : ""}
-                    {group.members.map((item, index) => (
-                      <div className="flex justify-between items-center" key={index}>
-                        <p>{item.name}</p>
-                        {isGenderFair ?
-                          item.gender === "male" ? <Mars size={20} className="text-blue-500" /> : item.gender === "female" ? <Venus size={20} className="text-pink-500" /> : ""
-                          : ""
-                        }
-                      </div>
-                    ))}
-
-                  </CardBody>
-                </Card>
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20, scale: 0.8 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ duration: 0.5, delay: index * 0.2 }}
+                >
+                  <Card isBlurred>
+                    <CardHeader>
+                      Group {index + 1}
+                    </CardHeader>
+                    <Divider />
+                    <CardBody>
+                      {group.leader && (
+                        <div className="text-yellow-500 flex justify-between items-center">
+                          <p className="font-semibold">{group.leader.name}</p>
+                          <Crown size={20} />
+                        </div>
+                      )}
+                      {group.members.map((item, idx) => (
+                        <motion.div
+                          key={idx}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.3, delay: idx * 0.1 }}
+                          className="flex justify-between items-center"
+                        >
+                          <p>{item.name}</p>
+                          {isGenderFair &&
+                            (item.gender === "male" ? <Mars size={20} className="text-blue-500" /> :
+                              item.gender === "female" ? <Venus size={20} className="text-pink-500" /> : "")
+                          }
+                        </motion.div>
+                      ))}
+                    </CardBody>
+                  </Card>
+                </motion.div>
               ))}
             </div>
 
