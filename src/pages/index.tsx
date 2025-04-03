@@ -78,21 +78,21 @@ export default function Home() {
 
   // const dummyItems: Item[] = [];
   const dummyItems: Item[] = [
-    { key: "1", name: "John", isLeader: false, gender: "male" },
-    { key: "2", name: "Emma", isLeader: false, gender: "female" },
-    { key: "3", name: "Michael", isLeader: false, gender: "male" },
-    { key: "4", name: "Olivia", isLeader: false, gender: "female" },
-    { key: "5", name: "James", isLeader: false, gender: "male" },
-    { key: "6", name: "Sophia", isLeader: false, gender: "female" },
-    { key: "7", name: "William", isLeader: false, gender: "male" },
-    { key: "8", name: "Isabella", isLeader: false, gender: "female" },
-    { key: "9", name: "Benjamin", isLeader: false, gender: "male" },
-    { key: "10", name: "Mia", isLeader: false, gender: "female" },
-    { key: "11", name: "Daniel", isLeader: false, gender: "male" },
-    { key: "12", name: "Charlotte", isLeader: false, gender: "female" },
-    { key: "13", name: "Henry", isLeader: false, gender: "male" },
-    { key: "14", name: "Amelia", isLeader: false, gender: "female" },
-    { key: "15", name: "Matthew", isLeader: false, gender: "male" },
+    // { key: "1", name: "John", isLeader: false, gender: "male" },
+    // { key: "2", name: "Emma", isLeader: false, gender: "female" },
+    // { key: "3", name: "Michael", isLeader: false, gender: "male" },
+    // { key: "4", name: "Olivia", isLeader: false, gender: "female" },
+    // { key: "5", name: "James", isLeader: false, gender: "male" },
+    // { key: "6", name: "Sophia", isLeader: false, gender: "female" },
+    // { key: "7", name: "William", isLeader: false, gender: "male" },
+    // { key: "8", name: "Isabella", isLeader: false, gender: "female" },
+    // { key: "9", name: "Benjamin", isLeader: false, gender: "male" },
+    // { key: "10", name: "Mia", isLeader: false, gender: "female" },
+    // { key: "11", name: "Daniel", isLeader: false, gender: "male" },
+    // { key: "12", name: "Charlotte", isLeader: false, gender: "female" },
+    // { key: "13", name: "Henry", isLeader: false, gender: "male" },
+    // { key: "14", name: "Amelia", isLeader: false, gender: "female" },
+    // { key: "15", name: "Matthew", isLeader: false, gender: "male" },
     //   { key: "16", name: "Harper", isLeader: false, gender: "female" },
     //   { key: "17", name: "Joseph", isLeader: false, gender: "male" },
     //   { key: "18", name: "Evelyn", isLeader: false, gender: "female" },
@@ -156,7 +156,6 @@ export default function Home() {
   }
 
   const handleRandomizeClick = () => {
-    console.log("object");
     setShuffleKey((prevKey) => prevKey + 1);
     setIsRandomizeLoading(true);
 
@@ -174,9 +173,6 @@ export default function Home() {
   const handleGenderFairChange = () => {
     setIsGenderFair((prevStatus) => !prevStatus);
   }
-  // console.log(items);
-  // console.log(groups);
-
 
   const totalLeaders = items.filter((item) => item.isLeader === true).length;
 
