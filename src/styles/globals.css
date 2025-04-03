@@ -12,3 +12,9 @@
   font-family: "satoshi";
 }
 
+@layer base {
+
+  input[type=number] {
+    appearance: textfield;
+  }
+}

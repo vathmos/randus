@@ -6,8 +6,6 @@ function randomizeGroups(
   mode: "group by number input" | "group by leaders" = "group by leaders",
   balanceGender: boolean = false
 ): Group[] {
-  if (numGroups <= 0) throw new Error("Number of groups must be at least 1");
-
   // Shuffle members list
   const shuffled = [...members].sort(() => Math.random() - 0.5);
 

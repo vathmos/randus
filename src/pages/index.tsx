@@ -18,6 +18,37 @@ import Link from "next/link";
 import { useTheme } from "next-themes";
 import Head from "next/head";
 import { motion } from "framer-motion"
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const createMemberSchema = z.object({
+  memberName: z.string({ message: "Input must be a string" }).nonempty({ message: "Please type something dude" }),
+})
+
+const randomizeGroupSchema = z.object({
+  groupMode: z.enum(["0", "1"]),
+  groupNum: z.string().optional(),
+}).superRefine((data, ctx) => {
+  if (data.groupMode === "0") {
+    if (!data.groupNum) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["groupNum"],
+        message: "Group number is required when group mode is 0",
+      });
+    } else if (Number(data.groupNum) <= 1) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["groupNum"],
+        message: "Group number must be greater than 1",
+      });
+    }
+  }
+});
+
+
+type RandomizeGroupSchema = z.infer<typeof randomizeGroupSchema>;
+type CreateMemberSchema = z.infer<typeof createMemberSchema>;
 
 
 
@@ -30,7 +61,13 @@ export default function Home() {
 
   const { theme } = useTheme();
 
-  const form = useForm();
+  const createMemberForm = useForm<CreateMemberSchema>({
+    resolver: zodResolver(createMemberSchema),
+  });
+
+  const randomizeGroupForm = useForm<RandomizeGroupSchema>({
+    resolver: zodResolver(randomizeGroupSchema)
+  })
 
   const [shuffleKey, setShuffleKey] = useState(0);
   const [isGenderFair, setIsGenderFair] = useState(false);
@@ -41,21 +78,21 @@ export default function Home() {
 
   // const dummyItems: Item[] = [];
   const dummyItems: Item[] = [
-    // { key: "1", name: "John", isLeader: false, gender: "male" },
-    // { key: "2", name: "Emma", isLeader: false, gender: "female" },
-    // { key: "3", name: "Michael", isLeader: false, gender: "male" },
-    // { key: "4", name: "Olivia", isLeader: false, gender: "female" },
-    // { key: "5", name: "James", isLeader: false, gender: "male" },
-    // { key: "6", name: "Sophia", isLeader: false, gender: "female" },
-    // { key: "7", name: "William", isLeader: false, gender: "male" },
-    // { key: "8", name: "Isabella", isLeader: false, gender: "female" },
-    // { key: "9", name: "Benjamin", isLeader: false, gender: "male" },
-    // { key: "10", name: "Mia", isLeader: false, gender: "female" },
-    // { key: "11", name: "Daniel", isLeader: false, gender: "male" },
-    // { key: "12", name: "Charlotte", isLeader: false, gender: "female" },
-    // { key: "13", name: "Henry", isLeader: false, gender: "male" },
-    // { key: "14", name: "Amelia", isLeader: false, gender: "female" },
-    // { key: "15", name: "Matthew", isLeader: false, gender: "male" },
+    { key: "1", name: "John", isLeader: false, gender: "male" },
+    { key: "2", name: "Emma", isLeader: false, gender: "female" },
+    { key: "3", name: "Michael", isLeader: false, gender: "male" },
+    { key: "4", name: "Olivia", isLeader: false, gender: "female" },
+    { key: "5", name: "James", isLeader: false, gender: "male" },
+    { key: "6", name: "Sophia", isLeader: false, gender: "female" },
+    { key: "7", name: "William", isLeader: false, gender: "male" },
+    { key: "8", name: "Isabella", isLeader: false, gender: "female" },
+    { key: "9", name: "Benjamin", isLeader: false, gender: "male" },
+    { key: "10", name: "Mia", isLeader: false, gender: "female" },
+    { key: "11", name: "Daniel", isLeader: false, gender: "male" },
+    { key: "12", name: "Charlotte", isLeader: false, gender: "female" },
+    { key: "13", name: "Henry", isLeader: false, gender: "male" },
+    { key: "14", name: "Amelia", isLeader: false, gender: "female" },
+    { key: "15", name: "Matthew", isLeader: false, gender: "male" },
     //   { key: "16", name: "Harper", isLeader: false, gender: "female" },
     //   { key: "17", name: "Joseph", isLeader: false, gender: "male" },
     //   { key: "18", name: "Evelyn", isLeader: false, gender: "female" },
@@ -76,14 +113,6 @@ export default function Home() {
 
 
   const [items, setItems] = useState<Item[]>(dummyItems);
-
-
-  const groupingMethods =
-    [
-      "Group by number input",
-      "Group by total leaders"
-    ]
-
 
   const handleDeleteItem = () => {
     if (selectedItemKeys !== "all" && selectedItemKeys.size !== 0) {
@@ -110,11 +139,10 @@ export default function Home() {
   }
   const handleCreateItem = () => {
 
-    const newItem: Item = { key: generateShortID(), name: form.getValues("item"), isLeader: false, gender: "" };
+    const newItem: Item = { key: generateShortID(), name: createMemberForm.getValues("memberName"), isLeader: false, gender: "" };
     setItems((prev) => prev ? [...prev, newItem] : [newItem]);
-    form.setFocus("item");
-    form.setValue("item", "");
-    console.log(items);
+    createMemberForm.setFocus("memberName");
+    createMemberForm.setValue("memberName", "");
     addToast({
       title: "Member added successfully",
       shouldShowTimeoutProgress: true,
@@ -128,28 +156,29 @@ export default function Home() {
   }
 
   const handleRandomizeClick = () => {
-    setShuffleKey(prevKey => prevKey + 1);
+    console.log("object");
+    setShuffleKey((prevKey) => prevKey + 1);
     setIsRandomizeLoading(true);
+
+    const groupNum = Number(randomizeGroupForm.watch("groupNum"));  // Convert to number
+
     if (selectedGroupingKey.has("0")) {
-      setGroups(randomizeGroups(items, form.watch("groupNum"), "group by number input", isGenderFair));
+      setGroups(randomizeGroups(items, groupNum, "group by number input", isGenderFair));
     } else if (selectedGroupingKey.has("1")) {
       setGroups([]);
       setGroups(randomizeGroups(items, totalLeaders, "group by leaders", isGenderFair));
     }
-    setIsRandomizeLoading(false);
-  }
 
+    setIsRandomizeLoading(false);
+  };
   const handleGenderFairChange = () => {
     setIsGenderFair((prevStatus) => !prevStatus);
-    console.log(isGenderFair);
   }
   // console.log(items);
   // console.log(groups);
 
 
   const totalLeaders = items.filter((item) => item.isLeader === true).length;
-
-
 
 
   return (
@@ -165,22 +194,21 @@ export default function Home() {
         <div className="flex flex-col gap-2 max-w-[1024px] px-6 w-screen color">
           <div className="flex w-full justify-between flex-wrap md:flex-nowrap gap-4">
             <div className="">
-              <Select defaultSelectedKeys="0" isRequired className="max-w-xs" label="Select grouping method" variant="bordered" onSelectionChange={handleGroupingChange}>
-                {groupingMethods.map((method, key) => (
-                  <SelectItem key={key}>{method}</SelectItem>
-                ))}
+              <Select defaultSelectedKeys="0" isRequired className="max-w-xs" label="Select grouping method" variant="bordered" onSelectionChange={handleGroupingChange} {...randomizeGroupForm.register("groupMode")}>
+                <SelectItem key="0">Group by number input</SelectItem>
+                <SelectItem key="1">Group by leaders</SelectItem>
               </Select>
               <Checkbox className="mt-2" onChange={(handleGenderFairChange)}>Use gender fair distribution</Checkbox>
             </div>
-            <Input label="Number of Groups" type="text" variant="bordered" placeholder="0" {...form.register("groupNum")} className={`w-36 ${!selectedGroupingKey.has("0") ? "hidden" : ""}`} />
+            <Input isDisabled={!selectedGroupingKey.has("0")} label="Number of Groups" type="number" variant="bordered" placeholder="0" {...randomizeGroupForm.register("groupNum")} className="w-36" required/>
 
           </div>
           <div key="bordered" className="flex w-full flex-wrap md:flex-nowrap md:mb-0 gap-4">
 
-            <Form className="flex flex-row items-end w-full" onSubmit={form.handleSubmit(handleCreateItem)}>
+            <Form className="flex flex-row items-end w-full" onSubmit={createMemberForm.handleSubmit(handleCreateItem)}>
               <Controller
-                name="item"
-                control={form.control}
+                name="memberName"
+                control={createMemberForm.control}
                 render={({ field }) => (
                   <Input
                     {...field} // Spreads field properties for full RHF control
@@ -191,14 +219,14 @@ export default function Home() {
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         e.preventDefault();
-                        handleCreateItem();
+                        createMemberForm.handleSubmit(handleCreateItem)();
                       }
                     }}
                   />
                 )}
               />
               <section className="flex items-end gap-2">
-                <Button type="submit" isIconOnly variant="solid" size="md" color="primary">
+                <Button isIconOnly variant="solid" size="md" color="primary">
                   <Plus></Plus>
                 </Button>
                 <Button isDisabled={selectedItemKeys !== "all" && selectedItemKeys.size === 0} onPress={handleDeleteItem} isIconOnly variant="solid" size="md" color="danger">
@@ -259,7 +287,6 @@ export default function Home() {
                                     prevItem.key === item.key ? { ...prevItem, gender: "male" } : prevItem
                                   )
                                 );
-                                console.log(items);
                               }}>Male</Radio>
                             <Radio value="female"
                               onChange={() => {
@@ -268,7 +295,6 @@ export default function Home() {
                                     prevItem.key === item.key ? { ...prevItem, gender: "female" } : prevItem
                                   )
                                 );
-                                console.log(items);
                               }}
                             >Female</Radio>
                           </div>
@@ -279,7 +305,7 @@ export default function Home() {
                 </TableBody>
               </Table>
             </div>
-            <Button isLoading={isRandomizeLoading} onPress={handleRandomizeClick} size="lg" className=" text-white rounded my-8 self-center w-fit bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-indigo-500 hover:to-blue-600 font-bold ">
+            <Button onClick={randomizeGroupForm.handleSubmit(handleRandomizeClick)} isLoading={isRandomizeLoading} size="lg" className=" text-white rounded my-8 self-center w-fit bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-indigo-500 hover:to-blue-600 font-bold ">
               <Dices className={isRandomizeLoading ? "hidden" : ""} />
               <span>Randomize!</span>
             </Button>
