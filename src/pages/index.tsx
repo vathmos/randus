@@ -30,17 +30,18 @@ const randomizeGroupSchema = z.object({
   groupNum: z.string().optional(),
 }).superRefine((data, ctx) => {
   if (data.groupMode === "0") {
-    if (!data.groupNum) {
+    // if (!data.groupNum) {
+    //   ctx.addIssue({
+    //     code: "custom",
+    //     path: ["groupNum"],
+    //     message: "Group number is required when group mode is 0",
+    //   });
+    // } 
+    if (Number(data.groupNum) <= 1) {
       ctx.addIssue({
         code: "custom",
         path: ["groupNum"],
-        message: "Group number is required when group mode is 0",
-      });
-    } else if (Number(data.groupNum) <= 1) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["groupNum"],
-        message: "Group number must be greater than 1",
+        message: "There are must be at least 2 groups",
       });
     }
   }
@@ -76,18 +77,17 @@ export default function Home() {
   const [selectedItemKeys, setSelectedItemKeys] = useState<Set<string> | "all">(new Set());
   const [selectedGroupingKey, setSelectedGroupingKey] = useState<Set<string>>(new Set(["0"]));
 
-  // const dummyItems: Item[] = [];
   const dummyItems: Item[] = [
-    // { key: "1", name: "John", isLeader: false, gender: "male" },
-    // { key: "2", name: "Emma", isLeader: false, gender: "female" },
-    // { key: "3", name: "Michael", isLeader: false, gender: "male" },
-    // { key: "4", name: "Olivia", isLeader: false, gender: "female" },
-    // { key: "5", name: "James", isLeader: false, gender: "male" },
-    // { key: "6", name: "Sophia", isLeader: false, gender: "female" },
-    // { key: "7", name: "William", isLeader: false, gender: "male" },
-    // { key: "8", name: "Isabella", isLeader: false, gender: "female" },
-    // { key: "9", name: "Benjamin", isLeader: false, gender: "male" },
-    // { key: "10", name: "Mia", isLeader: false, gender: "female" },
+    { key: "1", name: "John", isLeader: false, gender: "male" },
+    { key: "2", name: "Emma", isLeader: false, gender: "female" },
+    { key: "3", name: "Michael", isLeader: false, gender: "male" },
+    { key: "4", name: "Olivia", isLeader: false, gender: "female" },
+    { key: "5", name: "James", isLeader: false, gender: "male" },
+    { key: "6", name: "Sophia", isLeader: false, gender: "female" },
+    { key: "7", name: "William", isLeader: false, gender: "male" },
+    { key: "8", name: "Isabella", isLeader: false, gender: "female" },
+    { key: "9", name: "Benjamin", isLeader: false, gender: "male" },
+    { key: "10", name: "Mia", isLeader: false, gender: "female" },
     // { key: "11", name: "Daniel", isLeader: false, gender: "male" },
     // { key: "12", name: "Charlotte", isLeader: false, gender: "female" },
     // { key: "13", name: "Henry", isLeader: false, gender: "male" },
@@ -114,6 +114,8 @@ export default function Home() {
 
   const [items, setItems] = useState<Item[]>(dummyItems);
 
+
+
   const handleDeleteItem = () => {
     if (selectedItemKeys !== "all" && selectedItemKeys.size !== 0) {
 
@@ -121,7 +123,7 @@ export default function Home() {
       addToast({
         title: "Member(s) deleted successfully",
         shouldShowTimeoutProgress: true,
-        timeout: 3000,
+        timeout: 2000,
         color: "success"
       })
     } else {
@@ -129,7 +131,7 @@ export default function Home() {
       addToast({
         title: "Member(s) deleted successfully",
         shouldShowTimeoutProgress: true,
-        timeout: 3000,
+        timeout: 2000,
         color: "success"
       })
     }
@@ -146,7 +148,7 @@ export default function Home() {
     addToast({
       title: "Member added successfully",
       shouldShowTimeoutProgress: true,
-      timeout: 3000,
+      timeout: 2000,
       color: "success"
     })
   }
@@ -156,19 +158,28 @@ export default function Home() {
   }
 
   const handleRandomizeClick = () => {
-    setShuffleKey((prevKey) => prevKey + 1);
-    setIsRandomizeLoading(true);
+    if (totalLeaders < 2 && selectedGroupingKey.has("1")) {
+      addToast({
+        title: "there are should be at least 2 leaders",
+        shouldShowTimeoutProgress: true,
+        timeout: 4000,
+        color: "danger"
+      })
+    } else {
+      setShuffleKey((prevKey) => prevKey + 1);
+      setIsRandomizeLoading(true);
 
-    const groupNum = Number(randomizeGroupForm.watch("groupNum"));  // Convert to number
+      const groupNum = Number(randomizeGroupForm.watch("groupNum"));  // Convert to number
 
-    if (selectedGroupingKey.has("0")) {
-      setGroups(randomizeGroups(items, groupNum, "group by number input", isGenderFair));
-    } else if (selectedGroupingKey.has("1")) {
-      setGroups([]);
-      setGroups(randomizeGroups(items, totalLeaders, "group by leaders", isGenderFair));
+      if (selectedGroupingKey.has("0")) {
+        setGroups(randomizeGroups(items, groupNum, "group by number input", isGenderFair));
+      } else if (selectedGroupingKey.has("1")) {
+        setGroups([]);
+        setGroups(randomizeGroups(items, totalLeaders, "group by leaders", isGenderFair));
+      }
+
+      setIsRandomizeLoading(false);
     }
-
-    setIsRandomizeLoading(false);
   };
   const handleGenderFairChange = () => {
     setIsGenderFair((prevStatus) => !prevStatus);
@@ -196,7 +207,7 @@ export default function Home() {
               </Select>
               <Checkbox className="mt-2" onChange={(handleGenderFairChange)}>Use gender fair distribution</Checkbox>
             </div>
-            <Input isDisabled={!selectedGroupingKey.has("0")} label="Number of Groups" type="number" variant="bordered" placeholder="0" {...randomizeGroupForm.register("groupNum")} className="w-36" required/>
+            <Input isInvalid={randomizeGroupForm.formState.errors.groupNum ? true : false} errorMessage={randomizeGroupForm.formState.errors.groupNum?.message} isDisabled={!selectedGroupingKey.has("0")} label="Number of Groups" type="number" variant="bordered" placeholder="0" {...randomizeGroupForm.register("groupNum")} className="w-40" />
 
           </div>
           <div key="bordered" className="flex w-full flex-wrap md:flex-nowrap md:mb-0 gap-4">
