@@ -20,13 +20,15 @@ import Head from "next/head";
 import { motion } from "framer-motion"
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+// import GroupingDropdown from "@/components/GroupingDropdown";
+import { useTranslation } from "@/contexts/TranslationContext";
 
 const createMemberSchema = z.object({
   memberName: z.string({ message: "Input must be a string" }).nonempty({ message: "Please type something dude" }),
 })
 
 const randomizeGroupSchema = z.object({
-  groupMode: z.enum(["0", "1"]),
+  groupMode: z.enum(["0", "1"], { message: "please select one of the grouping mode" }),
   groupNum: z.string().optional(),
 }).superRefine((data, ctx) => {
   if (data.groupMode === "0") {
@@ -55,12 +57,8 @@ type CreateMemberSchema = z.infer<typeof createMemberSchema>;
 
 
 export default function Home() {
-
-
-
-
-
   const { theme } = useTheme();
+  const { text } = useTranslation();
 
   const createMemberForm = useForm<CreateMemberSchema>({
     resolver: zodResolver(createMemberSchema),
@@ -78,16 +76,16 @@ export default function Home() {
   const [selectedGroupingKey, setSelectedGroupingKey] = useState<Set<string>>(new Set(["0"]));
 
   const dummyItems: Item[] = [
-    { key: "1", name: "John", isLeader: false, gender: "male" },
-    { key: "2", name: "Emma", isLeader: false, gender: "female" },
-    { key: "3", name: "Michael", isLeader: false, gender: "male" },
-    { key: "4", name: "Olivia", isLeader: false, gender: "female" },
-    { key: "5", name: "James", isLeader: false, gender: "male" },
-    { key: "6", name: "Sophia", isLeader: false, gender: "female" },
-    { key: "7", name: "William", isLeader: false, gender: "male" },
-    { key: "8", name: "Isabella", isLeader: false, gender: "female" },
-    { key: "9", name: "Benjamin", isLeader: false, gender: "male" },
-    { key: "10", name: "Mia", isLeader: false, gender: "female" },
+    // { key: "1", name: "John", isLeader: false, gender: "male" },
+    // { key: "2", name: "Emma", isLeader: false, gender: "female" },
+    // { key: "3", name: "Michael", isLeader: false, gender: "male" },
+    // { key: "4", name: "Olivia", isLeader: false, gender: "female" },
+    // { key: "5", name: "James", isLeader: false, gender: "male" },
+    // { key: "6", name: "Sophia", isLeader: false, gender: "female" },
+    // { key: "7", name: "William", isLeader: false, gender: "male" },
+    // { key: "8", name: "Isabella", isLeader: false, gender: "female" },
+    // { key: "9", name: "Benjamin", isLeader: false, gender: "male" },
+    // { key: "10", name: "Mia", isLeader: false, gender: "female" },
     // { key: "11", name: "Daniel", isLeader: false, gender: "male" },
     // { key: "12", name: "Charlotte", isLeader: false, gender: "female" },
     // { key: "13", name: "Henry", isLeader: false, gender: "male" },
@@ -141,7 +139,7 @@ export default function Home() {
   }
   const handleCreateItem = () => {
 
-    const newItem: Item = { key: generateShortID(), name: createMemberForm.getValues("memberName"), isLeader: false, gender: "" };
+    const newItem: Item = { key: generateShortID(), name: createMemberForm.getValues("memberName"), isLeader: false, gender: null };
     setItems((prev) => prev ? [...prev, newItem] : [newItem]);
     createMemberForm.setFocus("memberName");
     createMemberForm.setValue("memberName", "");
@@ -158,6 +156,15 @@ export default function Home() {
   }
 
   const handleRandomizeClick = () => {
+    if (genderNulls && isGenderFair) {
+      addToast({
+        title: "Gender selection is required for all members",
+        shouldShowTimeoutProgress: true,
+        timeout: 4000,
+        color: "warning"
+      })
+      return;
+    }
     if (totalLeaders < 2 && selectedGroupingKey.has("1")) {
       addToast({
         title: "there are should be at least 2 leaders",
@@ -165,27 +172,31 @@ export default function Home() {
         timeout: 4000,
         color: "danger"
       })
-    } else {
-      setShuffleKey((prevKey) => prevKey + 1);
-      setIsRandomizeLoading(true);
-
-      const groupNum = Number(randomizeGroupForm.watch("groupNum"));  // Convert to number
-
-      if (selectedGroupingKey.has("0")) {
-        setGroups(randomizeGroups(items, groupNum, "group by number input", isGenderFair));
-      } else if (selectedGroupingKey.has("1")) {
-        setGroups([]);
-        setGroups(randomizeGroups(items, totalLeaders, "group by leaders", isGenderFair));
-      }
-
-      setIsRandomizeLoading(false);
+      return;
     }
+
+    setShuffleKey((prevKey) => prevKey + 1);
+    setIsRandomizeLoading(true);
+
+    const groupNum = Number(randomizeGroupForm.watch("groupNum"));  // Convert to number
+
+    if (selectedGroupingKey.has("0")) {
+      setGroups(randomizeGroups(items, groupNum, "group by number input", isGenderFair));
+    } else if (selectedGroupingKey.has("1")) {
+      setGroups([]);
+      setGroups(randomizeGroups(items, totalLeaders, "group by leaders", isGenderFair));
+    }
+
+    setIsRandomizeLoading(false);
   };
   const handleGenderFairChange = () => {
     setIsGenderFair((prevStatus) => !prevStatus);
   }
 
   const totalLeaders = items.filter((item) => item.isLeader === true).length;
+  const genderNulls = items.filter((item) => item.gender === null).length;
+
+  console.log(genderNulls);
 
 
   return (
@@ -201,13 +212,13 @@ export default function Home() {
         <div className="flex flex-col gap-2 max-w-[1024px] px-6 w-screen color">
           <div className="flex w-full justify-between flex-wrap md:flex-nowrap gap-4">
             <div className="">
-              <Select defaultSelectedKeys="0" isRequired className="max-w-xs" label="Select grouping method" variant="bordered" onSelectionChange={handleGroupingChange} {...randomizeGroupForm.register("groupMode")}>
-                <SelectItem key="0">Group by number input</SelectItem>
-                <SelectItem key="1">Group by leaders</SelectItem>
+              <Select errorMessage="please select one of the grouping mode" defaultSelectedKeys="0" isRequired className="max-w-xs" label="Select grouping method" variant="bordered" onSelectionChange={handleGroupingChange} {...randomizeGroupForm.register("groupMode")}>
+                <SelectItem key="0">{text.grouping_method_1}</SelectItem>
+                <SelectItem key="1">{text.grouping_method_2}</SelectItem>
               </Select>
-              <Checkbox className="mt-2" onChange={(handleGenderFairChange)}>Use gender fair distribution</Checkbox>
+              <Checkbox className="mt-2" onChange={(handleGenderFairChange)}>{text.gender_fair_dist}</Checkbox>
             </div>
-            <Input isInvalid={randomizeGroupForm.formState.errors.groupNum ? true : false} errorMessage={randomizeGroupForm.formState.errors.groupNum?.message} isDisabled={!selectedGroupingKey.has("0")} label="Number of Groups" type="number" variant="bordered" placeholder="0" {...randomizeGroupForm.register("groupNum")} className="w-40" />
+            <Input isInvalid={randomizeGroupForm.formState.errors.groupNum ? true : false} errorMessage={randomizeGroupForm.formState.errors.groupNum?.message} isDisabled={!selectedGroupingKey.has("0")} label={text.group_num} type="number" variant="bordered" placeholder="0" {...randomizeGroupForm.register("groupNum")} className="w-40" isRequired />
 
           </div>
           <div key="bordered" className="flex w-full flex-wrap md:flex-nowrap md:mb-0 gap-4">
@@ -218,11 +229,11 @@ export default function Home() {
                 control={createMemberForm.control}
                 render={({ field }) => (
                   <Input
-                    {...field} // Spreads field properties for full RHF control
-                    label="Name"
+                    {...field}
+                    label={text.table.name}
                     type="text"
                     variant="underlined"
-                    placeholder="Enter new member"
+                    placeholder={text.new_member}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         e.preventDefault();
@@ -257,7 +268,7 @@ export default function Home() {
                     #
                   </TableColumn>
                   <TableColumn>
-                    Name
+                    {text.table.name}
                   </TableColumn>
                   <TableColumn>
                     Status
@@ -266,7 +277,7 @@ export default function Home() {
                     Gender
                   </TableColumn>
                 </TableHeader>
-                <TableBody emptyContent="No items... yet!" items={items}>
+                <TableBody emptyContent={text.table.empty_table} items={items}>
                   {items.map((item, index) => (
                     <TableRow key={item.key}>
                       <TableCell>{index + 1}</TableCell>
@@ -281,7 +292,7 @@ export default function Home() {
                             );
                           }}
                         >
-                          Leader
+                          {text.leader}
                         </Checkbox>
                       </TableCell>
                       <TableCell>
@@ -294,7 +305,7 @@ export default function Home() {
                                     prevItem.key === item.key ? { ...prevItem, gender: "male" } : prevItem
                                   )
                                 );
-                              }}>Male</Radio>
+                              }}>{text.male}</Radio>
                             <Radio value="female"
                               onChange={() => {
                                 setItems((prev) =>
@@ -303,7 +314,7 @@ export default function Home() {
                                   )
                                 );
                               }}
-                            >Female</Radio>
+                            >{text.female}</Radio>
                           </div>
                         </RadioGroup>
                       </TableCell>
@@ -327,7 +338,7 @@ export default function Home() {
                 >
                   <Card isBlurred>
                     <CardHeader>
-                      Group {index + 1}
+                      {text.group} {index + 1}
                     </CardHeader>
                     <Divider />
                     <CardBody>
@@ -357,10 +368,12 @@ export default function Home() {
                 </motion.div>
               ))}
             </div>
+            {/* <GroupingDropdown isGroupExist={!!groups[0]}></GroupingDropdown> */}
 
           </div>
         </div>
       </div>
+
       <footer className="opacity-70 w-full bg-transparent mt-8 flex flex-col items-center justify-center p-10">
         <p className="opacity-70 text-sm">@ {new Date().getFullYear()} Vathmos. All rights reserved.</p>
         <div className={`p-2 gap-4 flex invert ${theme === "blurple-light" ? "invert-0" : "invert"}`}>

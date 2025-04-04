@@ -1,0 +1,19 @@
+{
+  "male": "Male",
+  "female": "Female",
+  "language": "Language",
+  "group_num": "Number of groups",
+  "grouping_method_1": "Group by number input",
+  "grouping_method_2": "Group by total leaders",
+  "gender_fair_dist": "Balance gender composition",
+  "table": {
+    "name":"Name",
+    "status": "Status",
+    "gender":"Gender",
+    "empty_table": "No members... yet!"
+  },
+  "leader": "Leader",
+  "randomize": "Randomize",
+  "group": "Group",
+  "new_member": "Enter new member"
+}

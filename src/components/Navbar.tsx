@@ -1,8 +1,9 @@
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@heroui/react";
-import { ThemeSwitcher } from "./ThemeSwitcher";
+import ThemeSwitch from "./ThemeSwitch";
+import LanguageSwitch from "./LanguageSwitch";
 import Image from "next/image";
 
-export default function DefaultNavbar(props: {currentTheme: string | undefined}) {
+export default function DefaultNavbar(props: { currentTheme: string | undefined }) {
   return (
     <>
       <Navbar position="static">
@@ -13,7 +14,10 @@ export default function DefaultNavbar(props: {currentTheme: string | undefined})
         </NavbarContent>
         <NavbarContent justify="end">
           <NavbarItem>
-            <ThemeSwitcher />
+            <LanguageSwitch />
+          </NavbarItem>
+          <NavbarItem className="flex gap-4">
+            <ThemeSwitch />
           </NavbarItem>
         </NavbarContent>
       </Navbar>

@@ -1,0 +1,20 @@
+{
+  "male": "Laki - laki",
+  "female": "Perempuan",
+  "language": "Bahasa",
+  "group_num": "Jumlah kelompok",
+  "grouping_method_1": "Kelompokkan berdasarkan input angka",
+  "grouping_method_2": "Kelompokkan berdasarkan jumlah ketua",
+  "gender_fair_dist": "Samaratakan komposisi gender",
+  "table": {
+    "name":"Nama",
+    "status": "Status",
+    "gender":"Gender",
+    "empty_table": "Sepertinya belum ada siapa-siapa di sini"
+
+  },
+  "leader": "Ketua",
+  "randomize": "Randomize",
+  "group":"Kelompok",
+  "new_member": "Masukkan anggota baru"
+}

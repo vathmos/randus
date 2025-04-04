@@ -3,7 +3,7 @@ import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
 
 
-export const ThemeSwitcher = () => {
+export default function ThemeSwitch() {
   const { theme, setTheme } = useTheme()
 
   return (

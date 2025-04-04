@@ -3,7 +3,7 @@ export type Group = {
   members: Member[];
 };
 
-export type Gender = "male" | "female" | "";
+export type Gender = "male" | "female" | null;
 export type Member = {
   name: string;
   isLeader: boolean;

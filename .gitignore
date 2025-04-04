@@ -41,3 +41,4 @@ yarn-error.log*
 next-env.d.ts
 
 /src/styles/output.css
+/src/pages/test.tsx
