@@ -42,3 +42,7 @@ next-env.d.ts
 
 /src/styles/output.css
 /src/pages/test.tsx
+/src/hooks/useMemberForm.ts
+/src/hooks/useMembers.ts
+
+blackboard

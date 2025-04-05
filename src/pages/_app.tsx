@@ -7,13 +7,13 @@ import { TranslationProvider } from "@/contexts/TranslationContext";
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <TranslationProvider>
-      <HeroUIProvider>
-        <ToastProvider />
-        <NextThemesProvider attribute="class" defaultTheme="blurple-dark" themes={["dark", "light", "blurple-dark", "blurple-light"]}>
+    <NextThemesProvider attribute="class" defaultTheme="blurple-dark" themes={["dark", "light", "blurple-dark", "blurple-light"]}>
+      <TranslationProvider>
+        <HeroUIProvider>
+          <ToastProvider />
           <Component {...pageProps} />
-        </NextThemesProvider>
-      </HeroUIProvider>
-    </TranslationProvider>
+        </HeroUIProvider>
+      </TranslationProvider>
+    </NextThemesProvider>
   )
 }
