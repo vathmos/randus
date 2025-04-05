@@ -44,5 +44,6 @@ next-env.d.ts
 /src/pages/test.tsx
 /src/hooks/useMemberForm.ts
 /src/hooks/useMembers.ts
+/src/components/MemberForm.tsx
 
 blackboard
