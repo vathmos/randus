@@ -1,7 +1,7 @@
 import { useState } from "react";
 import randomizeGroups from "@/utils/randomizeGroups";
-import { Group, Member } from "@/types";
 import { addToast } from "@heroui/react";
+import { Group, Member } from "@/types";
 
 export const useRandomizer = () => {
   const [groups, setGroups] = useState<Group[]>([]);
