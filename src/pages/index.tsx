@@ -48,9 +48,8 @@ const randomizeGroupSchema = z.object({
 
 const createMemberSchema = z.object({
   memberName: z.string({ message: "Input must be a string" }).trim().nonempty({ message: "Please type something dude" }),
-  separator: z.union([z.enum([",", " ", ";", "|"]), z.literal("")]).optional(),
-});
-
+  separator: z.enum(["0", "1", "2", "3", "4"])
+})
 type CreateMemberSchema = z.infer<typeof createMemberSchema>;
 
 type RandomizeGroupSchema = z.infer<typeof randomizeGroupSchema>;
@@ -179,18 +178,18 @@ export default function Home() {
     setSelectedGroupingKey(key as Set<string>)
   }
 
-const handleSeparatorChange = (key: SharedSelection) => {
-  const selectedKey: string = Array.isArray(key) ? key[0] : key === "all" ? "0" : [...key][0];
-  const separatorMap: Record<string, Separator> = {
-    "0": null,
-    "1": ",",
-    "2": " ",
-    "3": ";",
-    "4": "|",
+  const handleSeparatorChange = (key: SharedSelection) => {
+    const selectedKey: string = Array.isArray(key) ? key[0] : key === "all" ? "0" : [...key][0];
+    const separatorMap: Record<string, Separator> = {
+      "0": null,
+      "1": ",",
+      "2": " ",
+      "3": ";",
+      "4": "|",
+    };
+    setInputSeparator(separatorMap[selectedKey] ?? null);
+    console.log("Selected separator:", separatorMap[selectedKey]);
   };
-  setInputSeparator(separatorMap[selectedKey] ?? null);
-  console.log("Selected separator:", separatorMap[selectedKey]);
-};
 
 
   const handleRandomizeClick = () => {
@@ -254,7 +253,7 @@ const handleSeparatorChange = (key: SharedSelection) => {
           </div>
           <div key="bordered" className="flex w-full flex-wrap md:flex-nowrap md:mb-0 gap-4">
             <Form className="mt-4 flex flex-col w-full gap-0" onSubmit={createMemberForm.handleSubmit(handleCreateItem)}>
-              <Select errorMessage="please select one of the separator" defaultSelectedKeys="0" className="max-w-48" label="Select input separator" variant="bordered" onSelectionChange={handleSeparatorChange} {...createMemberForm.register("separator")}>
+              <Select errorMessage="please select one of the separator" defaultSelectedKeys="0" className="max-w-48" label="Select input separator" variant="bordered" onSelectionChange={handleSeparatorChange} {...createMemberForm.register("separator")} isRequired>
                 <SelectItem key="0">{text.separators.none}</SelectItem>
                 <SelectItem key="1">{text.separators.comma}</SelectItem>
                 <SelectItem key="2">{text.separators.space}</SelectItem>
