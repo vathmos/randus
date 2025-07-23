@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Plus, Crown, Trash, Dices, Mars, Venus } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import generateShortID from "@/utils/generateShortId";
-import { Item } from "@/types";
+import { Item, Separator } from "@/types";
 import {
   Table,
   TableHeader,
@@ -48,7 +48,9 @@ const randomizeGroupSchema = z.object({
 
 const createMemberSchema = z.object({
   memberName: z.string({ message: "Input must be a string" }).trim().nonempty({ message: "Please type something dude" }),
-})
+  separator: z.union([z.enum([",", " ", ";", "|"]), z.literal("")]).optional(),
+});
+
 type CreateMemberSchema = z.infer<typeof createMemberSchema>;
 
 type RandomizeGroupSchema = z.infer<typeof randomizeGroupSchema>;
@@ -72,6 +74,7 @@ export default function Home() {
 
   const [shuffleKey, setShuffleKey] = useState(0);
   const [isGenderFair, setIsGenderFair] = useState(false);
+  const [inputSeparator, setInputSeparator] = useState<Separator>(null);
   const [selectedItemKeys, setSelectedItemKeys] = useState<Set<string> | "all">(new Set());
   const [selectedGroupingKey, setSelectedGroupingKey] = useState<Set<string>>(new Set(["0"]));
 
@@ -144,21 +147,51 @@ export default function Home() {
   }
   const handleCreateItem = () => {
 
-    const newItem: Item = { key: generateShortID(), name: createMemberForm.getValues("memberName"), isLeader: false, gender: null };
-    setItems((prev) => prev ? [...prev, newItem] : [newItem]);
-    createMemberForm.setFocus("memberName");
-    createMemberForm.setValue("memberName", "");
-    addToast({
-      title: "Member added successfully",
-      shouldShowTimeoutProgress: true,
-      timeout: 2000,
-      color: "success"
-    })
+    if (inputSeparator) {
+      const newItems: Item[] = createMemberForm.getValues("memberName").split(inputSeparator).map((name) => {
+        return { key: generateShortID(), name: name.trim(), isLeader: false, gender: null };
+      });
+      setItems((prev) => prev ? [...prev, ...newItems] : [...newItems]);
+      createMemberForm.setFocus("memberName");
+      createMemberForm.setValue("memberName", "");
+      addToast({
+        title: "Members added successfully",
+        shouldShowTimeoutProgress: true,
+        timeout: 2000,
+        color: "success"
+      })
+    } else {
+      const newItem: Item = { key: generateShortID(), name: createMemberForm.getValues("memberName"), isLeader: false, gender: null };
+      setItems((prev) => prev ? [...prev, newItem] : [newItem]);
+      createMemberForm.setFocus("memberName");
+      createMemberForm.setValue("memberName", "");
+      addToast({
+        title: "Member added successfully",
+        shouldShowTimeoutProgress: true,
+        timeout: 2000,
+        color: "success"
+      })
+    }
+
   }
 
   const handleGroupingChange = (key: SharedSelection) => {
     setSelectedGroupingKey(key as Set<string>)
   }
+
+const handleSeparatorChange = (key: SharedSelection) => {
+  const selectedKey: string = Array.isArray(key) ? key[0] : key === "all" ? "0" : [...key][0];
+  const separatorMap: Record<string, Separator> = {
+    "0": null,
+    "1": ",",
+    "2": " ",
+    "3": ";",
+    "4": "|",
+  };
+  setInputSeparator(separatorMap[selectedKey] ?? null);
+  console.log("Selected separator:", separatorMap[selectedKey]);
+};
+
 
   const handleRandomizeClick = () => {
     if (totalLeaders < 2 && selectedGroupingKey.has("1")) {
@@ -212,42 +245,53 @@ export default function Home() {
                 <SelectItem key="0">{text.grouping_method_1}</SelectItem>
                 <SelectItem key="1">{text.grouping_method_2}</SelectItem>
               </Select>
-              <Checkbox className="mt-2" onChange={(handleGenderFairChange)}>{text.gender_fair_dist}</Checkbox>
+              <div className="flex flex-col gap-2  mt-2">
+                <Checkbox onChange={(handleGenderFairChange)}>{text.gender_fair_dist}</Checkbox>
+              </div>
             </div>
             <Input isInvalid={randomizeGroupForm.formState.errors.groupNum ? true : false} errorMessage={randomizeGroupForm.formState.errors.groupNum?.message} isDisabled={!selectedGroupingKey.has("0")} label={text.group_num} type="number" variant="bordered" placeholder="0" {...randomizeGroupForm.register("groupNum")} className="w-40" isRequired />
 
           </div>
           <div key="bordered" className="flex w-full flex-wrap md:flex-nowrap md:mb-0 gap-4">
-            <Form className="flex flex-row items-end w-full" onSubmit={createMemberForm.handleSubmit(handleCreateItem)}>
-              <Controller
-                name="memberName"
-                control={createMemberForm.control}
-                render={({ field }) => (
-                  <Input
-                    isInvalid={createMemberForm.formState.errors.memberName ? true : false}
-                    errorMessage={createMemberForm.formState.errors.memberName?.message}
-                    {...field}
-                    label={text.table.name}
-                    type="text"
-                    variant="underlined"
-                    placeholder={text.new_member}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        createMemberForm.handleSubmit(handleCreateItem)();
-                      }
-                    }}
-                  />
-                )}
-              />
-              <section className="flex items-end gap-2">
-                <Button type="submit" isIconOnly variant="solid" size="md" color="primary">
-                  <Plus></Plus>
-                </Button>
-                <Button isDisabled={selectedItemKeys !== "all" && selectedItemKeys.size === 0} onPress={handleDeleteItem} isIconOnly variant="solid" size="md" color="danger">
-                  <Trash></Trash>
-                </Button>
-              </section>
+            <Form className="mt-4 flex flex-col w-full gap-0" onSubmit={createMemberForm.handleSubmit(handleCreateItem)}>
+              <Select errorMessage="please select one of the separator" defaultSelectedKeys="0" className="max-w-48" label="Select input separator" variant="bordered" onSelectionChange={handleSeparatorChange} {...createMemberForm.register("separator")}>
+                <SelectItem key="0">{text.separators.none}</SelectItem>
+                <SelectItem key="1">{text.separators.comma}</SelectItem>
+                <SelectItem key="2">{text.separators.space}</SelectItem>
+                <SelectItem key="3">{text.separators.semicolon}</SelectItem>
+                <SelectItem key="4">{text.separators.pipe}</SelectItem>
+              </Select>
+              <div className="flex flex-row items-end w-full gap-2">
+                <Controller
+                  name="memberName"
+                  control={createMemberForm.control}
+                  render={({ field }) => (
+                    <Input
+                      isInvalid={createMemberForm.formState.errors.memberName ? true : false}
+                      errorMessage={createMemberForm.formState.errors.memberName?.message}
+                      {...field}
+                      label={text.table.name}
+                      type="text"
+                      variant="underlined"
+                      placeholder={text.new_member}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          createMemberForm.handleSubmit(handleCreateItem)();
+                        }
+                      }}
+                    />
+                  )}
+                />
+                <section className="flex items-end gap-2">
+                  <Button type="submit" isIconOnly variant="solid" size="md" color="primary">
+                    <Plus></Plus>
+                  </Button>
+                  <Button isDisabled={selectedItemKeys !== "all" && selectedItemKeys.size === 0} onPress={handleDeleteItem} isIconOnly variant="solid" size="md" color="danger">
+                    <Trash></Trash>
+                  </Button>
+                </section>
+              </div>
             </Form>
           </div>
           <div className="flex flex-col max-w-[1024px]">
