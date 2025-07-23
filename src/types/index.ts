@@ -13,3 +13,5 @@ export type Member = {
 export type Item = Member & {
   key: string;
 };
+
+export type Separator = "," | " " | ";" | "|" | null;
