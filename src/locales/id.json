@@ -6,6 +6,7 @@
   "grouping_method_1": "Kelompokkan berdasarkan input angka",
   "grouping_method_2": "Kelompokkan berdasarkan jumlah ketua",
   "gender_fair_dist": "Samaratakan komposisi gender",
+  "comma_split": "Izinkan pemisahan nama dengan tanda koma",
   "table": {
     "name":"Nama",
     "status": "Status",
@@ -16,5 +17,12 @@
   "leader": "Ketua",
   "randomize": "Randomize",
   "group":"Kelompok",
-  "new_member": "Masukkan anggota baru"
+  "new_member": "Masukkan anggota baru",
+  "separators": {
+    "comma": "Koma ( , )",
+    "space": "Spasi ( \u00A0 )",
+    "semicolon": "Titik koma ( ; )",
+    "pipe": "Pipe ( | )",
+    "none": "Tidak ada"
+  }
 }

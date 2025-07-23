@@ -6,6 +6,7 @@
   "grouping_method_1": "Group by number input",
   "grouping_method_2": "Group by total leaders",
   "gender_fair_dist": "Balance gender composition",
+  "comma_split": "Allow comma-separated names",
   "table": {
     "name":"Name",
     "status": "Status",
@@ -15,5 +16,12 @@
   "leader": "Leader",
   "randomize": "Randomize",
   "group": "Group",
-  "new_member": "Enter new member"
+  "new_member": "Enter new member",
+  "separators": {
+    "comma": "Comma ( , )",
+    "space": "Space ( \u00A0 )",
+    "semicolon": "Semicolon ( ; )",
+    "pipe": "Pipe ( | )",
+    "none": "None"
+  }
 }
