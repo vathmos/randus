@@ -253,7 +253,7 @@ export default function Home() {
           </div>
           <div key="bordered" className="flex w-full flex-wrap md:flex-nowrap md:mb-0 gap-4">
             <Form className="mt-4 flex flex-col w-full gap-0" onSubmit={createMemberForm.handleSubmit(handleCreateItem)}>
-              <Select errorMessage="please select one of the separator" defaultSelectedKeys="0" className="max-w-48" label="Select multiple input separator" variant="bordered" onSelectionChange={handleSeparatorChange} {...createMemberForm.register("separator")} isRequired>
+              <Select errorMessage="please select one of the separator" defaultSelectedKeys="0" className="max-w-56" label="Select multiple input separator" variant="bordered" onSelectionChange={handleSeparatorChange} {...createMemberForm.register("separator")} isRequired>
                 <SelectItem key="0">{text.separators.none}</SelectItem>
                 <SelectItem key="1">{text.separators.comma}</SelectItem>
                 <SelectItem key="2">{text.separators.space}</SelectItem>
