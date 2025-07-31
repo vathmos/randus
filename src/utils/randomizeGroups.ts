@@ -95,16 +95,13 @@ function randomizeGroups(
       });
     }
 
-    // ✨ Sort group members (females first)
     groups.forEach(group => {
       group.members.sort((a) => (a.gender === "female" ? -1 : 1));
     });
 
-    // Remove leader in group by number input mode
     return groups.map(g => ({ leader: null, members: g.members }));
   }
 
-  // ✨ Sort group members (females first)
   groups.forEach(g => {
     g.members.sort((a) => (a.gender === "female" ? -1 : 1));
   });

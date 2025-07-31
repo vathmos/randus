@@ -47,3 +47,4 @@ next-env.d.ts
 /src/components/MemberForm.tsx
 
 blackboard
+src/data/dummyMembers.json
