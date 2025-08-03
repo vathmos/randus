@@ -1,6 +1,6 @@
 import Navbar from "@/components/Navbar";
 import { addToast, Button, Card, CardBody, CardHeader, Checkbox, Divider, Form, Input, Radio, RadioGroup, Select, SelectItem, SharedSelection } from "@heroui/react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Plus, Crown, Trash, Dices, Mars, Venus } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import generateShortID from "@/utils/generateShortId";
@@ -81,7 +81,20 @@ export default function Home() {
   const [selectedGroupingKey, setSelectedGroupingKey] = useState<Set<string>>(new Set(["0"]));
 
 
+
+
   const [items, setItems] = useState<Item[]>([]);
+
+  useEffect(() => {
+    const storedItems = localStorage.getItem("randus-items");
+    if (storedItems) {
+      setItems(JSON.parse(storedItems) as Item[]);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("randus-items", JSON.stringify(items));
+  }, [items]);
 
   const handleDeleteItem = () => {
     if (selectedItemKeys !== "all" && selectedItemKeys.size !== 0) {
@@ -331,7 +344,7 @@ export default function Home() {
             </Button>
 
             <div ref={boardRef} className="bg-background rounded-md">
-              <div  key={shuffleKey} className={`rounded-md grid gap-4 bg-gradient-to-tr sm:grid-cols-2 md:grid-cols-4 grid-cols-1 from-blue-500/70 to-indigo-600/70 p-6 ${groups[0] ? "" : "hidden"}`}>
+              <div key={shuffleKey} className={`rounded-md grid gap-4 bg-gradient-to-tr sm:grid-cols-2 md:grid-cols-4 grid-cols-1 from-blue-500/70 to-indigo-600/70 p-6 ${groups[0] ? "" : "hidden"}`}>
                 {groups.map((group, index) => (
                   <motion.div
                     key={index}
