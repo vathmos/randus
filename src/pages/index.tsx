@@ -73,17 +73,16 @@ export default function Home() {
   const { groups, isRandomizing, randomize } = useRandomizer();
 
   const boardRef = useRef<HTMLDivElement>(null);
+  const boardTitleRef = useRef<HTMLDivElement>(null);
 
   const [shuffleKey, setShuffleKey] = useState(0);
   const [isGenderFair, setIsGenderFair] = useState(false);
   const [inputSeparator, setInputSeparator] = useState<Separator>(null);
   const [selectedItemKeys, setSelectedItemKeys] = useState<Set<string> | "all">(new Set());
   const [selectedGroupingKey, setSelectedGroupingKey] = useState<Set<string>>(new Set(["0"]));
-
-
-
-
+  const [boardTitle, setBoardTitle] = useState<string>("Randus Board");
   const [items, setItems] = useState<Item[]>([]);
+
 
   useEffect(() => {
     const storedItems = localStorage.getItem("randus-items");
@@ -95,6 +94,12 @@ export default function Home() {
   useEffect(() => {
     localStorage.setItem("randus-items", JSON.stringify(items));
   }, [items]);
+
+    useEffect(() => {
+    if (boardTitleRef.current) {
+      boardTitleRef.current.textContent = boardTitle;
+    }
+  }, []); 
 
   const handleDeleteItem = () => {
     if (selectedItemKeys !== "all" && selectedItemKeys.size !== 0) {
@@ -163,7 +168,6 @@ export default function Home() {
       "4": "|",
     };
     setInputSeparator(separatorMap[selectedKey] ?? null);
-    console.log("Selected separator:", separatorMap[selectedKey]);
   };
 
 
@@ -194,9 +198,21 @@ export default function Home() {
     } else if (selectedGroupingKey.has("1")) {
       randomize(items, totalLeaders, "group by leaders", isGenderFair);
     }
+
+    requestAnimationFrame(() => {
+      const editableTitle = boardTitleRef.current;
+      if (editableTitle) {
+        editableTitle.focus();
+      }
+    })
+
   };
   const handleGenderFairChange = () => {
     setIsGenderFair((prevStatus) => !prevStatus);
+  }
+
+  const handleTitleChange = () => {
+    setBoardTitle(boardTitleRef.current?.textContent || "");
   }
 
   const totalLeaders = items.filter((item) => item.isLeader === true).length;
@@ -344,48 +360,51 @@ export default function Home() {
             </Button>
 
             <div ref={boardRef} className="bg-background rounded-md">
-              <div key={shuffleKey} className={`rounded-md grid gap-4 bg-gradient-to-tr sm:grid-cols-2 md:grid-cols-4 grid-cols-1 from-blue-500/70 to-indigo-600/70 p-6 ${groups[0] ? "" : "hidden"}`}>
-                {groups.map((group, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 20, scale: 0.8 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ duration: 0.5, delay: index * 0.2 }}
-                  >
-                    <Card isBlurred>
-                      <CardHeader>
-                        {text.group} {index + 1}
-                      </CardHeader>
-                      <Divider />
-                      <CardBody>
-                        {group.leader && (
-                          <div className="text-yellow-500 flex justify-between items-center">
-                            <p className="font-semibold">{group.leader.name}</p>
-                            <Crown size={20} />
-                          </div>
-                        )}
-                        {group.members.map((item, idx) => (
-                          <motion.div
-                            key={idx}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.3, delay: idx * 0.1 }}
-                            className="flex justify-between items-center"
-                          >
-                            <p>{item.name}</p>
-                            {isGenderFair &&
-                              (item.gender === "male" ? <Mars size={20} className="text-blue-500" /> :
-                                item.gender === "female" ? <Venus size={20} className="text-pink-500" /> : "")
-                            }
-                          </motion.div>
-                        ))}
-                      </CardBody>
-                    </Card>
-                  </motion.div>
-                ))}
+              <div className={`rounded-md text-center flex flex-col justify-start bg-gradient-to-tr from-blue-500/70 to-indigo-600/70 ${groups[0] ? "" : "hidden"}`}>
+                <h1 className="text-2xl sm:text-3xl font-bold mt-6 outline-none px-20" ref={boardTitleRef} contentEditable onInput={handleTitleChange}></h1>
+                <div key={shuffleKey} className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 grid-cols-1 p-6">
+                  {groups.map((group, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20, scale: 0.8 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{ duration: 0.5, delay: index * 0.2 }}
+                    >
+                      <Card isBlurred>
+                        <CardHeader>
+                          {text.group} {index + 1}
+                        </CardHeader>
+                        <Divider />
+                        <CardBody>
+                          {group.leader && (
+                            <div className="text-yellow-500 flex justify-between items-center">
+                              <p className="font-semibold">{group.leader.name}</p>
+                              <Crown size={20} />
+                            </div>
+                          )}
+                          {group.members.map((item, idx) => (
+                            <motion.div
+                              key={idx}
+                              initial={{ opacity: 0, x: -10 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ duration: 0.3, delay: idx * 0.1 }}
+                              className="flex justify-between items-center"
+                            >
+                              <p>{item.name}</p>
+                              {isGenderFair &&
+                                (item.gender === "male" ? <Mars size={20} className="text-blue-500" /> :
+                                  item.gender === "female" ? <Venus size={20} className="text-pink-500" /> : "")
+                              }
+                            </motion.div>
+                          ))}
+                        </CardBody>
+                      </Card>
+                    </motion.div>
+                  ))}
+                </div>
               </div>
             </div>
-            <DownloadDropdown targetElement={boardRef.current!} isGroupExist={!!groups[0]}></DownloadDropdown>
+            <DownloadDropdown targetElement={boardRef.current!} isGroupExist={!!groups[0]} boardTitle={boardTitle}></DownloadDropdown>
 
           </div>
         </div>

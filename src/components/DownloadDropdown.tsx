@@ -14,14 +14,15 @@ type ExportOptions = {
 type DownloadDropdownProps = {
   isGroupExist: boolean;
   targetElement: HTMLDivElement;
+  boardTitle?: string;
 };
 
-export default function DownloadDropdown({ isGroupExist, targetElement }: DownloadDropdownProps) {
+export default function DownloadDropdown({ isGroupExist, targetElement, boardTitle }: DownloadDropdownProps) {
 
   const { theme } = useTheme();
 
   async function exportElement(
-    element: HTMLElement, { format = "png", quality = 1, filename }: ExportOptions = {}) {
+    element: HTMLElement, { format = "png", quality = 1, filename = boardTitle}: ExportOptions = {}) {
 
 
     if (!element) return;
