@@ -95,11 +95,11 @@ export default function Home() {
     localStorage.setItem("randus-items", JSON.stringify(items));
   }, [items]);
 
-    useEffect(() => {
+  useEffect(() => {
     if (boardTitleRef.current) {
       boardTitleRef.current.textContent = boardTitle;
     }
-  }, []); 
+  }, []);
 
   const handleDeleteItem = () => {
     if (selectedItemKeys !== "all" && selectedItemKeys.size !== 0) {
@@ -203,9 +203,11 @@ export default function Home() {
       const editableTitle = boardTitleRef.current;
       if (editableTitle) {
         editableTitle.focus();
+        boardRef.current?.scrollIntoView({
+          behavior: "smooth",
+        })
       }
     })
-
   };
   const handleGenderFairChange = () => {
     setIsGenderFair((prevStatus) => !prevStatus);
@@ -359,7 +361,7 @@ export default function Home() {
               <span>Randomize!</span>
             </Button>
 
-            <div ref={boardRef} className="bg-background rounded-md">
+            <div ref={boardRef} className="bg-background rounded-md" id="board">
               <div className={`rounded-md text-center flex flex-col justify-start bg-gradient-to-tr from-blue-500/70 to-indigo-600/70 ${groups[0] ? "" : "hidden"}`}>
                 <h1 className="text-2xl sm:text-3xl font-bold mt-6 outline-none px-20" ref={boardTitleRef} contentEditable onInput={handleTitleChange}></h1>
                 <div key={shuffleKey} className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 grid-cols-1 p-6">
