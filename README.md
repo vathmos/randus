@@ -1,7 +1,7 @@
 # Randus
 
 <p align="center">
-  <img src="public/randus-text.svg" alt="Randus logo" />
+  <img src="public/randus-text-white.svg" alt="Randus logo" />
 </p>
 
 A straightforward and fancy group randomizer built with Next.js. Add members, choose how to split them, and export the resulting board as an image.
