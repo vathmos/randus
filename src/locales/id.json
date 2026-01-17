@@ -3,8 +3,8 @@
   "female": "Perempuan",
   "language": "Bahasa",
   "group_num": "Jumlah kelompok",
-  "grouping_method_1": "Kelompokkan berdasarkan input angka",
-  "grouping_method_2": "Kelompokkan berdasarkan jumlah ketua",
+  "grouping_method_1": "Berdasarkan input angka",
+  "grouping_method_2": "Berdasarkan jumlah ketua",
   "gender_fair_dist": "Samaratakan komposisi gender",
   "comma_split": "Izinkan pemisahan nama dengan tanda koma",
   "table": {
